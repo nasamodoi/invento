@@ -1,0 +1,131 @@
+/* ----------------------------------------
+   Base Layout
+---------------------------------------- */
+.overview-container {
+  padding: 2rem;
+  min-height: 100vh;
+}
+
+/* ----------------------------------------
+   Theme: DARK MODE
+---------------------------------------- */
+.theme-dark .overview-container {
+  background-color: #1e1e2f;
+  color: #ffffff;
+}
+
+.theme-dark .card {
+  background-color: #2a2a3d;
+  color: #f0f0f0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s ease-in-out;
+}
+
+.theme-dark .card-body h5 {
+  color: #f0f0f0;
+}
+
+.theme-dark .list-group-item {
+  background-color: #2a2a3d;
+  color: #bea8a8;
+  border: none;
+}
+
+/* ----------------------------------------
+   Theme: LIGHT MODE
+---------------------------------------- */
+.theme-light .overview-container {
+  background-color: #f8f9fa;
+  color: #212529;
+}
+
+.theme-light .card {
+  background-color: #ffffff;
+  color: #212529;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease-in-out;
+}
+
+.theme-light .card-body h5 {
+  color: #343a40;
+}
+
+.theme-light .list-group-item {
+  background-color: #ffffff;
+  color: #495057;
+  border: 1px solid #dee2e6;
+}
+
+/* ----------------------------------------
+   Shared Components
+---------------------------------------- */
+.card:hover {
+  transform: scale(1.03);
+}
+
+.card-body p {
+  color: #dc3545; /* 🔴 Red for all TZS amounts */
+  font-weight: bold;
+  font-size: 1.4rem;
+}
+
+.btn-group .btn {
+  margin-right: 0.5rem;
+  border-radius: 6px;
+}
+
+.list-group-item {
+  margin-bottom: 0.5rem;
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+}
+
+/* ----------------------------------------
+   Card Type Backgrounds
+---------------------------------------- */
+.card-products {
+  background-color: #007bff !important;
+  color: #fff !important;
+}
+
+.card-users {
+  background-color: #6f42c1 !important;
+  color: #fff !important;
+}
+
+.card-sales {
+  background-color: #28a745 !important;
+  color: #fff !important;
+}
+
+.card-purchases {
+  background-color: #17a2b8 !important;
+  color: #fff !important;
+}
+
+.card-expenses {
+  background-color: #ce7aca !important;
+  color: #fff !important;
+}
+
+.card-profit {
+  background-color: #ffc107 !important;
+  color: #1e1e2f !important;
+}
+
+/* ----------------------------------------
+   Button Styling (All Blue)
+---------------------------------------- */
+.theme-dark .btn-outline-light,
+.theme-light .btn-outline-light {
+  background-color: #007bff;
+  border-color: #007bff;
+  color: #ffffff;
+}
+
+.theme-dark .btn-outline-light:hover,
+.theme-light .btn-outline-light:hover {
+  background-color: #0056b3;
+  border-color: #0056b3;
+  color: #ffffff;
+}

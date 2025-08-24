@@ -1,0 +1,175 @@
+import React, { useEffect, useState } from 'react';
+import api from '../api';
+import 'bootstrap/dist/css/bootstrap.min.css';
+
+const Products = () => {
+  const [products, setProducts] = useState([]);
+  const [newProduct, setNewProduct] = useState({
+    name: '', description: '', category: '', quantity: 0, price: '',
+  });
+  const [editProduct, setEditProduct] = useState(null);
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const fetchProducts = async () => {
+    try {
+      const response = await api.get('/api/products/');
+      setProducts(response.data);
+    } catch (error) {
+      console.error('Failed to fetch products:', error);
+    }
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    const update = editProduct ? setEditProduct : setNewProduct;
+    update(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleCreateProduct = async () => {
+    try {
+      const response = await api.post('/api/products/', newProduct);
+      setProducts([...products, response.data]);
+      setNewProduct({ name: '', description: '', category: '', quantity: 0, price: '' });
+    } catch (error) {
+      console.error('Failed to create product:', error);
+    }
+  };
+
+  const handleEdit = (product) => {
+    setEditProduct(product);
+  };
+
+  const handleUpdateProduct = async () => {
+    try {
+      const response = await api.put(`/api/products/${editProduct.id}/`, editProduct);
+      setProducts(products.map(p => (p.id === editProduct.id ? response.data : p)));
+      setEditProduct(null);
+    } catch (error) {
+      console.error('Failed to update product:', error);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await api.delete(`/api/products/${id}/`);
+      setProducts(products.filter(p => p.id !== id));
+    } catch (error) {
+      console.error('Failed to delete product:', error);
+    }
+  };
+
+  const formatTZS = (amount) => {
+    return new Intl.NumberFormat('en-TZ', {
+      style: 'currency',
+      currency: 'TZS',
+      minimumFractionDigits: 2,
+    }).format(amount);
+  };
+
+  const renderQuantityStatus = (product) => {
+    if (product.quantity === 0) {
+      return <span className="badge bg-danger">Out of Stock</span>;
+    }
+    if (product.low_stock) {
+      return <span className="badge bg-warning text-dark">Low Stock ({product.quantity})</span>;
+    }
+    return product.quantity;
+  };
+
+  return (
+    <div className="container mt-4">
+      <h2 className="mb-3">📦 Products</h2>
+
+      {/* Create Product Form */}
+      <div className="card p-3 mb-4">
+        <h4>Add New Product</h4>
+        <div className="row g-2">
+          {['name', 'description', 'category', 'price', 'quantity'].map((field) => (
+            <div className="col-md-4" key={field}>
+              <input
+                type={field === 'price' || field === 'quantity' ? 'number' : 'text'}
+                className="form-control"
+                placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
+                name={field}
+                value={newProduct[field]}
+                onChange={handleInputChange}
+              />
+            </div>
+          ))}
+          <div className="col-md-2">
+            <button className="btn btn-success w-100" onClick={handleCreateProduct}>
+              ➕ Add
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Products Table */}
+      {products.length === 0 ? (
+        <p>No products available.</p>
+      ) : (
+        <table className="table table-striped table-hover">
+          <thead className="table-dark">
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>Description</th>
+              <th>Category</th>
+              <th>Price</th>
+              <th>Quantity</th>
+              <th>Created At</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {products.map((product, index) => (
+              <tr key={product.id}>
+                <td>{index + 1}</td>
+                <td>{product.name}</td>
+                <td>{product.description}</td>
+                <td>{product.category}</td>
+                <td>{formatTZS(product.price)}</td>
+                <td>{renderQuantityStatus(product)}</td>
+                <td>{new Date(product.created_at).toLocaleString()}</td>
+                <td>
+                  <button className="btn btn-sm btn-warning me-2" onClick={() => handleEdit(product)}>Edit</button>
+                  <button className="btn btn-sm btn-danger" onClick={() => handleDelete(product.id)}>Delete</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+
+      {/* Edit Modal */}
+      {editProduct && (
+        <div className="card p-3 mt-4">
+          <h4>Edit Product</h4>
+          <div className="row g-2">
+            {['name', 'description', 'category', 'price', 'quantity'].map((field) => (
+              <div className="col-md-4" key={field}>
+                <input
+                  type={field === 'price' || field === 'quantity' ? 'number' : 'text'}
+                  className="form-control"
+                  placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
+                  name={field}
+                  value={editProduct[field]}
+                  onChange={handleInputChange}
+                />
+              </div>
+            ))}
+            <div className="col-md-2 d-flex">
+              <button className="btn btn-primary me-2 w-100" onClick={handleUpdateProduct}>💾 Save</button>
+              <button className="btn btn-secondary w-100" onClick={() => setEditProduct(null)}>❌ Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Products;

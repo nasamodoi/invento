@@ -1,0 +1,152 @@
+/* Sidebar.css */
+
+/* ✅ Light green backgrounds for sidebar */
+.sidebar-expanded {
+  background-color: #d4edda; /* light green */
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar-collapsed {
+  background-color: #d4edda; /* same light green for consistency */
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar-expanded h5 {
+  font-weight: bold;
+  color: #343a40;
+}
+
+/* Navigation links */
+.nav-link {
+  display: flex;
+  align-items: center;
+  padding: 0.6rem 1rem;
+  font-size: 1rem;
+  color: #495057;
+  border-radius: 0.375rem;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.nav-link:hover {
+  background-color: #c3e6cb; /* soft green hover */
+  color: #212529;
+}
+
+.nav-link.active {
+  background-color: #28a745; /* Bootstrap green */
+  color: #fff !important;
+}
+
+.nav-link.text-danger {
+  color: #dc3545;
+}
+
+.nav-link.text-danger:hover {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+/* Icon-only alignment when collapsed */
+.sidebar-collapsed .nav-link {
+  justify-content: center;
+  font-size: 1.2rem;
+  padding: 0.75rem;
+}
+
+/* Toggle button */
+button.btn-outline-secondary {
+  align-self: flex-end;
+  font-size: 1.2rem;
+  padding: 0.4rem 0.6rem;
+}
+
+button svg {
+  transition: transform 0.3s ease;
+}
+
+button:hover svg {
+  transform: scale(1.1);
+}
+
+/* Rotation animation for the toggle icon */
+.sidebar-toggle .rot-icon,
+.tiny-toggle-floating .rot-icon,
+.btn[aria-pressed="true"] .rot-icon {
+  display: inline-block;
+  transition: transform 200ms ease;
+}
+
+/* When "pressed" (expanded), rotate 180deg */
+.sidebar-toggle[aria-pressed="true"] .rot-icon,
+.tiny-toggle-floating[aria-pressed="true"] .rot-icon,
+.btn[aria-pressed="true"] .rot-icon {
+  transform: rotate(180deg);
+}
+
+/* Tiny-screen floating toggle button */
+.tiny-toggle-floating {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 1001;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  display: none; /* default hidden; shown via media query below */
+}
+
+/* Drawer and backdrop for tiny screens */
+.sidebar-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0);
+  transition: background 180ms ease;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+.sidebar-backdrop.open {
+  background: rgba(0,0,0,0.35);
+  pointer-events: auto;
+}
+
+.sidebar-drawer {
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  width: 280px;
+  transform: translateX(-100%);
+  transition: transform 220ms cubic-bezier(.2,.8,.2,1);
+  z-index: 1002;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+/* Open state slides in */
+.sidebar-drawer.open {
+  transform: translateX(0);
+}
+
+/* Show floating toggle only under 640px */
+@media (max-width: 640px) {
+  .tiny-toggle-floating {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+/* Better hit targets and focus styling */
+.sidebar-toggle, .tiny-toggle-floating, .nav-link {
+  min-height: 40px;
+}
+
+.sidebar-toggle:focus, .tiny-toggle-floating:focus, .nav-link:focus {
+  outline: 2px solid #198754; /* bootstrap success color */
+  outline-offset: 2px;
+}
+
+/* Tooltips for collapsed state (desktop) */
+.sidebar-collapsed .nav-link span {
+  display: none;
+}
