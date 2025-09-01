@@ -182,14 +182,14 @@ CORS_ALLOWED_ORIGINS = [
 # STATIC + REACT BUILD SETTINGS
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
-    BASE_DIR / 'frontend' / 'inventory_system' / 'build' / 'static'
+    BASE_DIR / 'fontend' / 'inventory_system' / 'build' / 'static'
 ]
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'frontend' / 'inventory_system' / 'build'],
+        'DIRS': [BASE_DIR / 'fontend' / 'inventory_system' / 'build'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
