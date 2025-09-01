@@ -163,10 +163,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY SETTINGS
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'your-dev-secret-key')
-DEBUG = os.environ.get('DEBUG', 'False') == 'True'
+DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 
 ALLOWED_HOSTS = [
-    'invento-ncak.onrender.com',    
+    'invento-ncak.onrender.com',
     'localhost',
     '127.0.0.1',
 ]
@@ -182,14 +182,14 @@ CORS_ALLOWED_ORIGINS = [
 # STATIC + REACT BUILD SETTINGS
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
-    BASE_DIR / 'fontend' / 'inventory_system' / 'build' / 'static'
+    BASE_DIR / 'frontend' / 'static'
 ]
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'fontend' / 'inventory_system' / 'build'],
+        'DIRS': [BASE_DIR / 'frontend'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

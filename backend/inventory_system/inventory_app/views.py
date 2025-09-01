@@ -18,6 +18,7 @@ from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.generics import CreateAPIView
 
+
 # ---------------------
 # Custom Permissions
 # ---------------------
@@ -213,3 +214,9 @@ def report_dates(request):
     dates = Report.objects.values_list('generated_at', flat=True)
     unique_dates = sorted(set(dt.date() for dt in dates))
     return Response({'dates': [d.isoformat() for d in unique_dates]})
+
+
+    
+
+def frontend(request):
+    return render(request, 'index.html')
