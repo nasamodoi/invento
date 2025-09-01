@@ -166,7 +166,7 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'your-dev-secret-key')
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = [
-    'invento.onrender.com',
+    'invento-ncak.onrender.com',    
     'localhost',
     '127.0.0.1',
 ]
@@ -174,7 +174,7 @@ ALLOWED_HOSTS = [
 # CORS SETTINGS
 CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOWED_ORIGINS = [
-    'https://invento.onrender.com',
+    'https://invento-ncak.onrender.com',
     'http://localhost:3000',
     'http://127.0.0.1:3000',
 ]
