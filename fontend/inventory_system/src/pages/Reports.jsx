@@ -1,74 +1,87 @@
 import React, { useEffect, useState } from 'react';
 import api from '../api';
+import { toast } from 'react-toastify';
 
 const Reports = () => {
-  const [reports, setReports] = useState([]);
+  const [report, setReport] = useState(null);
   const [newNotes, setNewNotes] = useState('');
-  const [editReport, setEditReport] = useState(null);
+  const [editMode, setEditMode] = useState(false);
+  const [reportMessage, setReportMessage] = useState('');
+  const [selectedDate, setSelectedDate] = useState('');
 
   useEffect(() => {
-    fetchReports();
+    fetchTodayReport();
   }, []);
 
-  const fetchReports = async () => {
+  const fetchTodayReport = async () => {
     try {
-      const response = await api.get('/api/reports/');
-      setReports(response.data);
+      const response = await api.get('/api/overview/');
+      setReport(response.data.report);
+      setReportMessage(response.data.report_message);
     } catch (error) {
-      console.error('Failed to fetch reports:', error);
+      console.error('Failed to fetch today’s report:', error);
+    }
+  };
+
+  const handleFetchByDate = async () => {
+    if (!selectedDate) return;
+
+    try {
+      const response = await api.get(`/api/reports/?date=${selectedDate}`);
+      if (response.data.length > 0) {
+        setReport(response.data[0]);
+        toast.info(`📅 Report loaded for ${selectedDate}`);
+      } else {
+        setReport(null);
+        toast.warn(`📅 No report found for ${selectedDate}`);
+      }
+    } catch (error) {
+      console.error('Failed to fetch report by date:', error);
+      toast.error('❌ Error fetching report');
     }
   };
 
   const handleCreateReport = async () => {
     try {
       const response = await api.post('/api/reports/', { notes: newNotes });
-      setReports([...reports, response.data]);
+      setReport(response.data);
       setNewNotes('');
+      toast.success('✅ Report generated for today');
     } catch (error) {
       console.error('Failed to create report:', error.response?.data || error.message);
+      toast.error('❌ Failed to generate report');
     }
-  };
-
-  const handleEdit = (report) => {
-    setEditReport({ ...report });
   };
 
   const handleUpdateReport = async () => {
     try {
-      const response = await api.put(`/api/reports/${editReport.id}/`, { notes: editReport.notes });
-      setReports(reports.map(r => (r.id === editReport.id ? response.data : r)));
-      setEditReport(null);
+      const response = await api.put(`/api/reports/${report.id}/`, { notes: report.notes });
+      setReport(response.data);
+      setEditMode(false);
+      toast.success('💾 Notes updated');
     } catch (error) {
       console.error('Failed to update report:', error.response?.data || error.message);
+      toast.error('❌ Failed to update notes');
     }
   };
 
-  const handleDelete = async (id) => {
+  const handleExportPDF = async () => {
     try {
-      await api.delete(`/api/reports/${id}/`);
-      setReports(reports.filter(r => r.id !== id));
-    } catch (error) {
-      console.error('Failed to delete report:', error);
-    }
-  };
-
-  const handleExportPDF = async (id) => {
-    try {
-      const response = await api.get(`/api/reports/${id}/export_pdf/`, {
+      const response = await api.get(`/api/reports/${report.id}/export_pdf/`, {
         responseType: 'blob',
       });
       const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `report_${id}.pdf`);
+      link.setAttribute('download', `report_${report.id}.pdf`);
       document.body.appendChild(link);
       link.click();
     } catch (error) {
       console.error('Failed to export PDF:', error);
+      toast.error('❌ PDF export failed');
     }
   };
 
-  // ✅ Helper function to format TZS amounts
   const formatTZS = (amount) => {
     return new Intl.NumberFormat('en-TZ', {
       style: 'currency',
@@ -79,76 +92,71 @@ const Reports = () => {
 
   return (
     <div className="container mt-4">
-      <h2>📊 Reports</h2>
+      <h2>📊 Financial Reports</h2>
 
-      {/* Add New Report */}
-      <div className="card p-3 mb-4">
-        <h4>Generate New Report</h4>
-        <textarea
-          className="form-control mb-2"
-          rows="3"
-          placeholder="Optional notes..."
-          value={newNotes}
-          onChange={(e) => setNewNotes(e.target.value)}
-        />
-        <button className="btn btn-success" onClick={handleCreateReport}>
-          ➕ Generate Report
-        </button>
+      {/* Date Picker */}
+      <div className="mb-4">
+        <label className="form-label">📅 View Report by Date</label>
+        <div className="d-flex gap-2">
+          <input
+            type="date"
+            className="form-control"
+            value={selectedDate}
+            onChange={(e) => setSelectedDate(e.target.value)}
+          />
+          <button className="btn btn-outline-primary" onClick={handleFetchByDate}>
+            🔍 Fetch Report
+          </button>
+        </div>
       </div>
 
-      {/* Reports Table */}
-      {reports.length === 0 ? (
-        <div className="alert alert-warning">No reports available.</div>
-      ) : (
-        <table className="table table-bordered table-hover">
-          <thead className="table-dark">
-            <tr>
-              <th>#</th>
-              <th>Generated By</th>
-              <th>Date</th>
-              <th>Sales</th>
-              <th>Purchases</th>
-              <th>Expenses</th>
-              <th>Net Profit</th>
-              <th>Notes</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {reports.map((report, index) => (
-              <tr key={report.id}>
-                <td>{index + 1}</td>
-                <td>{report.generated_by_username || '—'}</td>
-                <td>{new Date(report.generated_at).toLocaleString()}</td>
-                <td>{formatTZS(report.total_sales)}</td>
-                <td>{formatTZS(report.total_purchases)}</td>
-                <td>{formatTZS(report.total_expenses)}</td>
-                <td>{formatTZS(report.net_profit)}</td>
-                <td>{report.notes || '—'}</td>
-                <td>
-                  <button className="btn btn-sm btn-warning me-2" onClick={() => handleEdit(report)}>Edit</button>
-                  <button className="btn btn-sm btn-danger me-2" onClick={() => handleDelete(report.id)}>Delete</button>
-                  <button className="btn btn-sm btn-secondary" onClick={() => handleExportPDF(report.id)}>📄 PDF</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-
-      {/* Edit Report Notes */}
-      {editReport && (
-        <div className="card p-3 mt-4">
-          <h4>Edit Report Notes</h4>
+      {/* Create Report if none exists */}
+      {!report ? (
+        <div className="card p-3 mb-4">
+          <p>{reportMessage}</p>
           <textarea
             className="form-control mb-2"
             rows="3"
-            value={editReport.notes}
-            onChange={(e) => setEditReport({ ...editReport, notes: e.target.value })}
+            placeholder="Optional notes..."
+            value={newNotes}
+            onChange={(e) => setNewNotes(e.target.value)}
           />
+          <button className="btn btn-success" onClick={handleCreateReport}>
+            ➕ Generate Today's Report
+          </button>
+        </div>
+      ) : (
+        <div className="card p-4 mb-4">
+          <h4>📅 Report Summary</h4>
+          <p><strong>Generated By:</strong> {report.generated_by_username || '—'}</p>
+          <p><strong>Date:</strong> {new Date(report.generated_at).toLocaleString()}</p>
+          <p><strong>Total Sales:</strong> {formatTZS(report.total_sales)}</p>
+          <p><strong>Total Purchases:</strong> {formatTZS(report.total_purchases)}</p>
+          <p><strong>Total Expenses:</strong> {formatTZS(report.total_expenses)}</p>
+          <p><strong>Net Profit:</strong> {formatTZS(report.net_profit)}</p>
+          <p><strong>Notes:</strong> {editMode ? (
+            <textarea
+              className="form-control mb-2"
+              rows="3"
+              value={report.notes}
+              onChange={(e) => setReport({ ...report, notes: e.target.value })}
+            />
+          ) : (
+            report.notes || '—'
+          )}</p>
+
           <div className="d-flex">
-            <button className="btn btn-primary me-2" onClick={handleUpdateReport}>💾 Save</button>
-            <button className="btn btn-secondary" onClick={() => setEditReport(null)}>❌ Cancel</button>
+            {editMode ? (
+              <>
+                <button className="btn btn-primary me-2" onClick={handleUpdateReport}>💾 Save</button>
+                <button className="btn btn-secondary" onClick={() => setEditMode(false)}>❌ Cancel</button>
+              </>
+            ) : (
+              <>
+                <button className="btn btn-warning me-2" onClick={() => setEditMode(true)}>✏️ Edit Notes</button>
+                <button className="btn btn-secondary" onClick={handleExportPDF}>📄 Export PDF</button>
+              </>
+            )}
           </div>
         </div>
       )}

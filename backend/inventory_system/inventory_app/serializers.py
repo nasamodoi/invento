@@ -153,6 +153,21 @@ class PurchaseSerializer(serializers.ModelSerializer):
         model = Purchase
         fields = '__all__'
 
+    def validate_quantity(self, value):
+        if value <= 0:
+            raise serializers.ValidationError("Quantity must be greater than zero.")
+        return value
+
+    def create(self, validated_data):
+        product = validated_data['product']
+        quantity = validated_data['quantity']
+
+        # ✅ Increase product stock
+        product.quantity += quantity
+        product.save()
+
+        return super().create(validated_data)
+
 # ---------------------
 # Sale Serializer (with stock validation and deduction)
 # ---------------------

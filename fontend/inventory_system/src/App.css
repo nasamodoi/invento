@@ -72,3 +72,11 @@
   display: none;
   
 }
+
+/* App.css or index.css */
+.color-filled {
+  fill: #28a745;
+}
+.color-empty {
+  fill: #e0e0e0;
+}

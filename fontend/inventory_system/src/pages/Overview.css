@@ -1,131 +1,98 @@
-/* ----------------------------------------
-   Base Layout
----------------------------------------- */
-.overview-container {
-  padding: 2rem;
+/* Container themes */
+.theme-dark {
+  background-color: #121212;
   min-height: 100vh;
+  padding: 20px;
+  color: #f1f1f1;
 }
 
-/* ----------------------------------------
-   Theme: DARK MODE
----------------------------------------- */
-.theme-dark .overview-container {
-  background-color: #1e1e2f;
-  color: #ffffff;
+.theme-light {
+  background-color: #f9f9f9;
+  min-height: 100vh;
+  padding: 20px;
+  color: #333;
 }
 
-.theme-dark .card {
-  background-color: #2a2a3d;
-  color: #f0f0f0;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  transition: transform 0.2s ease-in-out;
-}
-
-.theme-dark .card-body h5 {
-  color: #f0f0f0;
-}
-
-.theme-dark .list-group-item {
-  background-color: #2a2a3d;
-  color: #bea8a8;
+/* Stat Cards */
+.card {
   border: none;
+  border-radius: 15px;
+  transition: all 0.3s ease-in-out;
+  color: white;
+  text-align: center;
 }
 
-/* ----------------------------------------
-   Theme: LIGHT MODE
----------------------------------------- */
-.theme-light .overview-container {
-  background-color: #f8f9fa;
-  color: #212529;
-}
-
-.theme-light .card {
-  background-color: #ffffff;
-  color: #212529;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease-in-out;
-}
-
-.theme-light .card-body h5 {
-  color: #343a40;
-}
-
-.theme-light .list-group-item {
-  background-color: #ffffff;
-  color: #495057;
-  border: 1px solid #dee2e6;
-}
-
-/* ----------------------------------------
-   Shared Components
----------------------------------------- */
 .card:hover {
-  transform: scale(1.03);
+  transform: translateY(-5px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
 }
 
-.card-body p {
-  color: #dc3545; /* 🔴 Red for all TZS amounts */
+.card h5 {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.card p {
+  font-size: 1.3rem;
   font-weight: bold;
-  font-size: 1.4rem;
+  margin: 0;
+}
+
+/* Gradients for each stat card */
+.card-products { background: linear-gradient(135deg, #6a11cb, #2575fc); }
+.card-users { background: linear-gradient(135deg, #11998e, #38ef7d); }
+.card-sales { background: linear-gradient(135deg, #f7971e, #ffd200); color: #222; }
+.card-purchases { background: linear-gradient(135deg, #00c6ff, #0072ff); }
+.card-expenses { background: linear-gradient(135deg, #ff416c, #ff4b2b); }
+.card-profit { background: linear-gradient(135deg, #43cea2, #185a9d); }
+
+/* Recent Activity */
+.list-group-item {
+  background: transparent;
+  border: none;
+  font-size: 0.95rem;
+  padding: 10px;
+  transition: background 0.2s;
+}
+
+.list-group-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+/* Button Group */
+.btn-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .btn-group .btn {
-  margin-right: 0.5rem;
-  border-radius: 6px;
+  border-radius: 25px;
+  font-weight: 500;
+  padding: 10px 18px;
+  transition: all 0.3s;
 }
 
-.list-group-item {
-  margin-bottom: 0.5rem;
-  border-radius: 6px;
-  padding: 0.75rem 1rem;
+.btn-group .btn:hover {
+  transform: translateY(-3px);
 }
 
-/* ----------------------------------------
-   Card Type Backgrounds
----------------------------------------- */
-.card-products {
-  background-color: #007bff !important;
-  color: #fff !important;
+/* Theme-specific buttons */
+.theme-dark .btn-outline-light {
+  border-color: #f1f1f1;
+  color: #f1f1f1;
+}
+.theme-dark .btn-outline-light:hover {
+  background: #f1f1f1;
+  color: #121212;
 }
 
-.card-users {
-  background-color: #6f42c1 !important;
-  color: #fff !important;
-}
-
-.card-sales {
-  background-color: #28a745 !important;
-  color: #fff !important;
-}
-
-.card-purchases {
-  background-color: #17a2b8 !important;
-  color: #fff !important;
-}
-
-.card-expenses {
-  background-color: #ce7aca !important;
-  color: #fff !important;
-}
-
-.card-profit {
-  background-color: #ffc107 !important;
-  color: #1e1e2f !important;
-}
-
-/* ----------------------------------------
-   Button Styling (All Blue)
----------------------------------------- */
-.theme-dark .btn-outline-light,
 .theme-light .btn-outline-light {
-  background-color: #007bff;
-  border-color: #007bff;
-  color: #ffffff;
+  border-color: #333;
+  color: #333;
 }
-
-.theme-dark .btn-outline-light:hover,
 .theme-light .btn-outline-light:hover {
-  background-color: #0056b3;
-  border-color: #0056b3;
-  color: #ffffff;
+  background: #333;
+  color: #fff;
 }

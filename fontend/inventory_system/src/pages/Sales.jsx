@@ -4,11 +4,13 @@ import { toast } from 'react-toastify';
 
 const Sales = () => {
   const [sales, setSales] = useState([]);
+  const [filteredSales, setFilteredSales] = useState([]);
   const [products, setProducts] = useState([]);
   const [newSale, setNewSale] = useState({
     product: '', quantity: '', price_per_unit: ''
   });
   const [editSale, setEditSale] = useState(null);
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     fetchSales();
@@ -19,6 +21,7 @@ const Sales = () => {
     try {
       const response = await api.get('/api/sales/');
       setSales(response.data);
+      setFilteredSales(response.data);
     } catch (error) {
       console.error('Failed to fetch sales:', error);
     }
@@ -45,6 +48,7 @@ const Sales = () => {
       const payload = { product, quantity, price_per_unit };
       const response = await api.post('/api/sales/', payload);
       setSales([...sales, response.data]);
+      setFilteredSales([...sales, response.data]);
       setNewSale({ product: '', quantity: '', price_per_unit: '' });
       toast.success('✅ Sale recorded successfully');
     } catch (error) {
@@ -65,7 +69,9 @@ const Sales = () => {
       const { product, quantity, price_per_unit } = editSale;
       const payload = { product, quantity, price_per_unit };
       const response = await api.put(`/api/sales/${editSale.id}/`, payload);
-      setSales(sales.map(s => (s.id === editSale.id ? response.data : s)));
+      const updated = sales.map(s => (s.id === editSale.id ? response.data : s));
+      setSales(updated);
+      setFilteredSales(updated);
       setEditSale(null);
       toast.success('✅ Sale updated');
     } catch (error) {
@@ -77,7 +83,9 @@ const Sales = () => {
   const handleDelete = async (id) => {
     try {
       await api.delete(`/api/sales/${id}/`);
-      setSales(sales.filter(s => s.id !== id));
+      const updated = sales.filter(s => s.id !== id);
+      setSales(updated);
+      setFilteredSales(updated);
       toast.info('🗑️ Sale deleted');
     } catch (error) {
       console.error('Failed to delete sale:', error);
@@ -104,9 +112,49 @@ const Sales = () => {
     ));
   };
 
+  // 🔍 Handle Search
+  const handleSearch = (e) => {
+    const query = e.target.value.toLowerCase();
+    setSearch(query);
+
+    if (!query) {
+      setFilteredSales(sales);
+      return;
+    }
+
+    const results = sales.filter(
+      (sale) =>
+        sale.product_name.toLowerCase().includes(query) ||
+        (sale.sold_by_username && sale.sold_by_username.toLowerCase().includes(query)) ||
+        new Date(sale.sold_at).toLocaleDateString().toLowerCase().includes(query)
+    );
+    setFilteredSales(results);
+  };
+
+  const clearSearch = () => {
+    setSearch('');
+    setFilteredSales(sales);
+  };
+
   return (
     <div className="container mt-4">
       <h2 className="mb-3">🧾 Sales</h2>
+
+      {/* 🔍 Search Bar */}
+      <div className="input-group mb-3">
+        <input
+          type="text"
+          className="form-control"
+          placeholder="Search by product, seller, or date..."
+          value={search}
+          onChange={handleSearch}
+        />
+        {search && (
+          <button className="btn btn-outline-secondary" onClick={clearSearch}>
+            ❌ Clear
+          </button>
+        )}
+      </div>
 
       {/* Add New Sale Form */}
       <div className="card p-3 mb-4">
@@ -153,7 +201,7 @@ const Sales = () => {
       </div>
 
       {/* Sales Table */}
-      {sales.length === 0 ? (
+      {filteredSales.length === 0 ? (
         <div className="alert alert-warning">No sales records available.</div>
       ) : (
         <table className="table table-bordered table-hover">
@@ -170,7 +218,7 @@ const Sales = () => {
             </tr>
           </thead>
           <tbody>
-            {sales.map((sale, index) => (
+            {filteredSales.map((sale, index) => (
               <tr key={sale.id || index}>
                 <td>{index + 1}</td>
                 <td>{sale.product_name}</td>

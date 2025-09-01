@@ -8,6 +8,7 @@ const Purchases = () => {
     product: '', quantity: '', price_per_unit: ''
   });
   const [editPurchase, setEditPurchase] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     fetchPurchases();
@@ -78,7 +79,6 @@ const Purchases = () => {
     }
   };
 
-  // ✅ Format price and total cost in TZS
   const formatTZS = (amount) => {
     return new Intl.NumberFormat('en-TZ', {
       style: 'currency',
@@ -87,9 +87,31 @@ const Purchases = () => {
     }).format(amount);
   };
 
+  const filteredPurchases = purchases.filter(p =>
+    p.product_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (p.purchased_by_username || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    new Date(p.purchased_at).toLocaleString().toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div className="container mt-4">
       <h2 className="mb-3">📥 Purchases</h2>
+
+      {/* Search Bar */}
+      <div className="mb-3 d-flex gap-2">
+        <input
+          type="text"
+          className="form-control"
+          placeholder="🔍 Search by product, user, or date"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        {searchTerm && (
+          <button className="btn btn-outline-secondary" onClick={() => setSearchTerm('')}>
+            ❌ Clear
+          </button>
+        )}
+      </div>
 
       {/* Create Purchase Form */}
       <div className="card p-3 mb-4">
@@ -138,8 +160,8 @@ const Purchases = () => {
       </div>
 
       {/* Purchases Table */}
-      {purchases.length === 0 ? (
-        <div className="alert alert-warning">No purchases found.</div>
+      {filteredPurchases.length === 0 ? (
+        <div className="alert alert-warning">No purchases match your search.</div>
       ) : (
         <table className="table table-bordered table-hover">
           <thead className="table-dark">
@@ -155,7 +177,7 @@ const Purchases = () => {
             </tr>
           </thead>
           <tbody>
-            {purchases.map((purchase, index) => (
+            {filteredPurchases.map((purchase, index) => (
               <tr key={purchase.id}>
                 <td>{index + 1}</td>
                 <td>{purchase.product_name}</td>

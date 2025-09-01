@@ -8,6 +8,7 @@ const Products = () => {
     name: '', description: '', category: '', quantity: 0, price: '',
   });
   const [editProduct, setEditProduct] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     fetchProducts();
@@ -79,9 +80,31 @@ const Products = () => {
     return product.quantity;
   };
 
+  const filteredProducts = products.filter(p =>
+    p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    p.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    p.category.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div className="container mt-4">
       <h2 className="mb-3">📦 Products</h2>
+
+      {/* Search Bar */}
+      <div className="mb-3 d-flex gap-2">
+        <input
+          type="text"
+          className="form-control"
+          placeholder="🔍 Search by name, description, or category"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        {searchTerm && (
+          <button className="btn btn-outline-secondary" onClick={() => setSearchTerm('')}>
+            ❌ Clear
+          </button>
+        )}
+      </div>
 
       {/* Create Product Form */}
       <div className="card p-3 mb-4">
@@ -108,8 +131,8 @@ const Products = () => {
       </div>
 
       {/* Products Table */}
-      {products.length === 0 ? (
-        <p>No products available.</p>
+      {filteredProducts.length === 0 ? (
+        <p>No products match your search.</p>
       ) : (
         <table className="table table-striped table-hover">
           <thead className="table-dark">
@@ -125,7 +148,7 @@ const Products = () => {
             </tr>
           </thead>
           <tbody>
-            {products.map((product, index) => (
+            {filteredProducts.map((product, index) => (
               <tr key={product.id}>
                 <td>{index + 1}</td>
                 <td>{product.name}</td>
