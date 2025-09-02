@@ -1,9 +1,14 @@
 import axios from 'axios';
 
-const baseURL = 'http://localhost:8000';
+// Dynamically set baseURL based on environment
+const baseURL =
+  process.env.NODE_ENV === 'production'
+    ? 'https://invento-ncak.onrender.com'
+    : 'http://localhost:8000';
 
 const api = axios.create({ baseURL });
 
+// Attach access token to every request
 api.interceptors.request.use(config => {
   const accessToken = localStorage.getItem('access_token');
   if (accessToken) {
@@ -12,6 +17,7 @@ api.interceptors.request.use(config => {
   return config;
 });
 
+// Handle token refresh on 401 errors
 api.interceptors.response.use(
   response => response,
   async error => {
