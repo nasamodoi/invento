@@ -24,20 +24,19 @@ const Sidebar = () => {
   const user = useUser();
 
   // Breakpoints
-  const isMobile = useMediaQuery('(max-width: 1024px)'); // auto-collapse threshold
-  const isTiny = useMediaQuery('(max-width: 640px)'); // switch to drawer
+  const isMobile = useMediaQuery('(max-width: 1024px)');
+  const isTiny = useMediaQuery('(max-width: 640px)');
 
-  // Collapsed/open state with persistence and "user intent" pinning
+  // Collapsed/open state
   const [collapsed, setCollapsed] = useState(() => {
     const saved = localStorage.getItem('sidebar:collapsed');
-    return saved ? JSON.parse(saved) : false; // default expanded on desktop
+    return saved ? JSON.parse(saved) : false;
   });
   const [pinnedByUser, setPinnedByUser] = useState(false);
 
   useEffect(() => {
-    // If user hasn't explicitly pinned/toggled, follow breakpoint
     if (!pinnedByUser) {
-      setCollapsed(isMobile); // collapse by default on mobile
+      setCollapsed(isMobile);
     }
   }, [isMobile, pinnedByUser]);
 
@@ -50,27 +49,22 @@ const Sidebar = () => {
     setCollapsed(v => !v);
   };
 
-  // Drawer open when tiny and not collapsed
   const drawerOpen = isTiny && !collapsed;
 
-  // Focus and scroll lock for drawer
   const drawerRef = useRef(null);
   const firstLinkRef = useRef(null);
 
   useEffect(() => {
     if (!drawerOpen) return;
 
-    // Focus first link
     const el = firstLinkRef.current || drawerRef.current?.querySelector('a, button, [tabindex]:not([tabindex="-1"])');
     el?.focus?.();
 
-    // ESC to close
     const onKeyDown = (e) => {
       if (e.key === 'Escape') setCollapsed(true);
     };
     document.addEventListener('keydown', onKeyDown);
 
-    // Body scroll lock
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
 
@@ -80,10 +74,11 @@ const Sidebar = () => {
     };
   }, [drawerOpen]);
 
-  // Shared nav (keeps your emojis and role-based link)
+  // Navigation links
   const Nav = useMemo(() => (
     <nav className="nav flex-column" aria-label="Primary">
-      <NavLink to="/" className="nav-link" activeClassName="active" ref={firstLinkRef}>
+      {/* ✅ Overview now points to "/" and uses `end` */}
+      <NavLink to="/" end className="nav-link" activeClassName="active" ref={firstLinkRef}>
         🏠 {!collapsed && 'Overview'}
       </NavLink>
       <NavLink to="/products" className="nav-link" activeClassName="active">
@@ -116,22 +111,18 @@ const Sidebar = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   ), [collapsed, user?.is_admin]);
 
-  // Toggle icon as a single SVG that rotates
   const ToggleIcon = () => (
     <span className="rot-icon" aria-hidden="true">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="green" xmlns="http://www.w3.org/2000/svg">
         <rect x="2" y="2" width="20" height="20" rx="4" fill="none" stroke="green" strokeWidth="2"/>
-        {/* Chevron right; rotates 180deg when expanded */}
         <path d="M10 8L14 12L10 16" stroke="green" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
       </svg>
     </span>
   );
 
-  /* -------- Tiny screens: render as drawer -------- */
   if (isTiny) {
     return (
       <>
-        {/* Floating toggle button (visible only on tiny screens) */}
         <button
           type="button"
           className="btn btn-success tiny-toggle-floating"
@@ -143,13 +134,11 @@ const Sidebar = () => {
           <ToggleIcon />
         </button>
 
-        {/* Backdrop */}
         <div
           className={`sidebar-backdrop ${drawerOpen ? 'open' : ''}`}
           onClick={() => setCollapsed(true)}
         />
 
-        {/* Drawer */}
         <aside
           id="sidebar-drawer"
           ref={drawerRef}
@@ -178,7 +167,6 @@ const Sidebar = () => {
     );
   }
 
-  /* -------- Desktop/tablet: classic sidebar with width transition -------- */
   return (
     <div
       id="sidebar"
@@ -187,7 +175,6 @@ const Sidebar = () => {
       aria-label="Sidebar"
       aria-expanded={!collapsed}
     >
-      {/* Toggle Button */}
       <button
         type="button"
         className="btn btn-outline-secondary mb-3 sidebar-toggle"
@@ -199,10 +186,8 @@ const Sidebar = () => {
         <ToggleIcon />
       </button>
 
-      {/* Title */}
       {!collapsed && <h5 className="mb-4">🧮 Inventory Dashboard</h5>}
 
-      {/* Navigation Links */}
       {Nav}
     </div>
   );
