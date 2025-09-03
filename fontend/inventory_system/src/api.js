@@ -3,7 +3,7 @@ import axios from 'axios';
 // Dynamically set baseURL based on environment
 const baseURL =
   process.env.NODE_ENV === 'production'
-    ? 'https://invento-ncak.onrender.com/api/'  // ✅ Backend URL
+    ? 'https://invento-1-f2o1.onrender.com/api/'  // ✅ Backend URL
     : 'http://localhost:8000/api/';
 
 const api = axios.create({ baseURL });
