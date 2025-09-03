@@ -7,8 +7,8 @@ import './Login.css';
 
 const Login = () => {
   const [credentials, setCredentials] = useState({
-    username: '',
-    password: '',
+    username: 'odoi',
+    password: 'odoi@1234567890',
   });
   const [loading, setLoading] = useState(false);
   const [errorShake, setErrorShake] = useState(false);

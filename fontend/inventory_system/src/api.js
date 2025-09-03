@@ -3,8 +3,8 @@ import axios from 'axios';
 // Dynamically set baseURL based on environment
 const baseURL =
   process.env.NODE_ENV === 'production'
-    ? 'https://invento-1-f2o1.onrender.com'
-    : 'http://localhost:8000';
+    ? 'https://invento-ncak.onrender.com/api/'  // ✅ Backend URL
+    : 'http://localhost:8000/api/';
 
 const api = axios.create({ baseURL });
 
@@ -28,7 +28,7 @@ api.interceptors.response.use(
 
       try {
         const refreshToken = localStorage.getItem('refresh_token');
-        const res = await axios.post(`${baseURL}/api/token/refresh/`, {
+        const res = await axios.post(`${baseURL}token/refresh/`, {
           refresh: refreshToken
         });
 
