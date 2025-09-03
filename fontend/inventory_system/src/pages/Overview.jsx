@@ -4,18 +4,21 @@ import api from '../api';
 import './Overview.css';
 
 const Overview = () => {
-  const [stats, setStats] = useState({});
+  const [stats, setStats] = useState(null);
   const [recent, setRecent] = useState([]);
   const [theme, setTheme] = useState('dark'); // 'dark' or 'light'
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchOverview = async () => {
       try {
-        const res = await api.get('/api/overview/');
+        const res = await api.get('overview/');
         setStats(res.data.stats);
-        setRecent(res.data.recent);
+        setRecent(Array.isArray(res.data.recent) ? res.data.recent : []);
       } catch (err) {
         console.error('Failed to fetch overview:', err);
+      } finally {
+        setLoading(false);
       }
     };
     fetchOverview();
@@ -25,14 +28,18 @@ const Overview = () => {
     setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
   };
 
-  // ✅ Format TZS values
   const formatTZS = (amount) => {
+    if (typeof amount !== 'number') return '—';
     return new Intl.NumberFormat('en-TZ', {
       style: 'currency',
       currency: 'TZS',
       minimumFractionDigits: 2,
     }).format(amount);
   };
+
+  if (loading || !stats) {
+    return <div className="text-white">Loading overview...</div>;
+  }
 
   return (
     <div className={`overview-container theme-${theme}`}>
@@ -48,7 +55,7 @@ const Overview = () => {
           <div className="card card-products">
             <div className="card-body">
               <h5>Total Products</h5>
-              <p>{stats.total_products}</p>
+              <p>{stats.total_products ?? '—'}</p>
             </div>
           </div>
         </div>
@@ -56,7 +63,7 @@ const Overview = () => {
           <div className="card card-users">
             <div className="card-body">
               <h5>Total Users</h5>
-              <p>{stats.total_users}</p>
+              <p>{stats.total_users ?? '—'}</p>
             </div>
           </div>
         </div>
@@ -96,9 +103,13 @@ const Overview = () => {
 
       <h4 className={theme === 'dark' ? 'text-white' : ''}>🕒 Recent Activity</h4>
       <ul className="list-group mb-4">
-        {recent.map((item, idx) => (
-          <li key={idx} className="list-group-item">{item}</li>
-        ))}
+        {recent.length > 0 ? (
+          recent.map((item, idx) => (
+            <li key={idx} className="list-group-item">{item}</li>
+          ))
+        ) : (
+          <li className="list-group-item">No recent activity</li>
+        )}
       </ul>
 
       <div className="btn-group">
