@@ -7,8 +7,8 @@ import './Login.css';
 
 const Login = () => {
   const [credentials, setCredentials] = useState({
-    username: 'odoi',
-    password: 'odoi@1234567890',
+    username: '',
+    password: '',
   });
   const [loading, setLoading] = useState(false);
   const [errorShake, setErrorShake] = useState(false);
@@ -40,7 +40,7 @@ const Login = () => {
     setErrorShake(false);
 
     try {
-      const response = await api.post('/api/token/', {
+      const response = await api.post('token/', {
         username: credentials.username,
         password: credentials.password,
       });
