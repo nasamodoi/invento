@@ -23,13 +23,6 @@ const Login = () => {
     }
   }, []);
 
-  useEffect(() => {
-    const token = localStorage.getItem('access_token');
-    if (token) {
-      navigate('/');
-    }
-  }, [navigate]);
-
   const handleChange = (e) => {
     setCredentials({ ...credentials, [e.target.name]: e.target.value });
   };
@@ -57,10 +50,11 @@ const Login = () => {
       }
 
       toast.success('✅ Login successful');
-      navigate('/');
+      navigate('/overview');
     } catch (error) {
-      console.error('Login failed:', error.response?.data || error.message);
-      toast.error('❌ Invalid credentials');
+      const message = error.response?.data?.detail || '❌ Invalid credentials';
+      console.error('Login failed:', message);
+      toast.error(message);
       setErrorShake(true);
     } finally {
       setLoading(false);
