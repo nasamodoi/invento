@@ -14,7 +14,7 @@ const Expenses = () => {
 
   const fetchExpenses = async () => {
     try {
-      const response = await api.get('/api/expenses/');
+      const response = await api.get('expenses/');
       setExpenses(response.data);
     } catch (error) {
       console.error('Failed to fetch expenses:', error);
@@ -31,7 +31,7 @@ const Expenses = () => {
     try {
       const { description, amount } = newExpense;
       const payload = { description, amount };
-      const response = await api.post('/api/expenses/', payload);
+      const response = await api.post('expenses/', payload);
       setExpenses([...expenses, response.data]);
       setNewExpense({ description: '', amount: '' });
     } catch (error) {
@@ -50,7 +50,7 @@ const Expenses = () => {
     try {
       const { description, amount } = editExpense;
       const payload = { description, amount };
-      const response = await api.put(`/api/expenses/${editExpense.id}/`, payload);
+      const response = await api.put(`expenses/${editExpense.id}/`, payload);
       setExpenses(expenses.map(e => (e.id === editExpense.id ? response.data : e)));
       setEditExpense(null);
     } catch (error) {
@@ -60,14 +60,13 @@ const Expenses = () => {
 
   const handleDelete = async (id) => {
     try {
-      await api.delete(`/api/expenses/${id}/`);
+      await api.delete(`expenses/${id}/`);
       setExpenses(expenses.filter(e => e.id !== id));
     } catch (error) {
       console.error('Failed to delete expense:', error);
     }
   };
 
-  // ✅ Format amount in TZS
   const formatTZS = (amount) => {
     return new Intl.NumberFormat('en-TZ', {
       style: 'currency',

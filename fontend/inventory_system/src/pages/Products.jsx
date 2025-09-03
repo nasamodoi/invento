@@ -16,7 +16,7 @@ const Products = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await api.get('/api/products/');
+      const response = await api.get('products/');
       setProducts(response.data);
     } catch (error) {
       console.error('Failed to fetch products:', error);
@@ -31,7 +31,7 @@ const Products = () => {
 
   const handleCreateProduct = async () => {
     try {
-      const response = await api.post('/api/products/', newProduct);
+      const response = await api.post('products/', newProduct);
       setProducts([...products, response.data]);
       setNewProduct({ name: '', description: '', category: '', quantity: 0, price: '' });
     } catch (error) {
@@ -45,7 +45,7 @@ const Products = () => {
 
   const handleUpdateProduct = async () => {
     try {
-      const response = await api.put(`/api/products/${editProduct.id}/`, editProduct);
+      const response = await api.put(`products/${editProduct.id}/`, editProduct);
       setProducts(products.map(p => (p.id === editProduct.id ? response.data : p)));
       setEditProduct(null);
     } catch (error) {
@@ -55,7 +55,7 @@ const Products = () => {
 
   const handleDelete = async (id) => {
     try {
-      await api.delete(`/api/products/${id}/`);
+      await api.delete(`products/${id}/`);
       setProducts(products.filter(p => p.id !== id));
     } catch (error) {
       console.error('Failed to delete product:', error);

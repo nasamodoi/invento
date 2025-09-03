@@ -17,7 +17,7 @@ const Purchases = () => {
 
   const fetchPurchases = async () => {
     try {
-      const response = await api.get('/api/purchases/');
+      const response = await api.get('purchases/');
       setPurchases(response.data);
     } catch (error) {
       console.error('Failed to fetch purchases:', error);
@@ -26,7 +26,7 @@ const Purchases = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await api.get('/api/products/');
+      const response = await api.get('products/');
       setProducts(response.data);
     } catch (error) {
       console.error('Failed to fetch products:', error);
@@ -43,7 +43,7 @@ const Purchases = () => {
     try {
       const { product, quantity, price_per_unit } = newPurchase;
       const payload = { product, quantity, price_per_unit };
-      const response = await api.post('/api/purchases/', payload);
+      const response = await api.post('purchases/', payload);
       setPurchases([...purchases, response.data]);
       setNewPurchase({ product: '', quantity: '', price_per_unit: '' });
     } catch (error) {
@@ -62,7 +62,7 @@ const Purchases = () => {
     try {
       const { product, quantity, price_per_unit } = editPurchase;
       const payload = { product, quantity, price_per_unit };
-      const response = await api.put(`/api/purchases/${editPurchase.id}/`, payload);
+      const response = await api.put(`purchases/${editPurchase.id}/`, payload);
       setPurchases(purchases.map(p => (p.id === editPurchase.id ? response.data : p)));
       setEditPurchase(null);
     } catch (error) {
@@ -72,7 +72,7 @@ const Purchases = () => {
 
   const handleDelete = async (id) => {
     try {
-      await api.delete(`/api/purchases/${id}/`);
+      await api.delete(`purchases/${id}/`);
       setPurchases(purchases.filter(p => p.id !== id));
     } catch (error) {
       console.error('Failed to delete purchase:', error);

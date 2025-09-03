@@ -19,7 +19,7 @@ const Sales = () => {
 
   const fetchSales = async () => {
     try {
-      const response = await api.get('/api/sales/');
+      const response = await api.get('sales/');
       setSales(response.data);
       setFilteredSales(response.data);
     } catch (error) {
@@ -29,7 +29,7 @@ const Sales = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await api.get('/api/products/');
+      const response = await api.get('products/');
       setProducts(response.data);
     } catch (error) {
       console.error('Failed to fetch products:', error);
@@ -46,7 +46,7 @@ const Sales = () => {
     try {
       const { product, quantity, price_per_unit } = newSale;
       const payload = { product, quantity, price_per_unit };
-      const response = await api.post('/api/sales/', payload);
+      const response = await api.post('sales/', payload);
       setSales([...sales, response.data]);
       setFilteredSales([...sales, response.data]);
       setNewSale({ product: '', quantity: '', price_per_unit: '' });
@@ -68,7 +68,7 @@ const Sales = () => {
     try {
       const { product, quantity, price_per_unit } = editSale;
       const payload = { product, quantity, price_per_unit };
-      const response = await api.put(`/api/sales/${editSale.id}/`, payload);
+      const response = await api.put(`sales/${editSale.id}/`, payload);
       const updated = sales.map(s => (s.id === editSale.id ? response.data : s));
       setSales(updated);
       setFilteredSales(updated);
@@ -82,7 +82,7 @@ const Sales = () => {
 
   const handleDelete = async (id) => {
     try {
-      await api.delete(`/api/sales/${id}/`);
+      await api.delete(`sales/${id}/`);
       const updated = sales.filter(s => s.id !== id);
       setSales(updated);
       setFilteredSales(updated);

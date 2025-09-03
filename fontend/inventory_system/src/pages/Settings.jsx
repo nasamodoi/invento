@@ -7,7 +7,7 @@ const Settings = () => {
   useEffect(() => {
     const fetchSettings = async () => {
       try {
-        const response = await api.get('/api/settings/');
+        const response = await api.get('settings/');
         setSettings(response.data);
       } catch (error) {
         console.error('Failed to fetch settings:', error);

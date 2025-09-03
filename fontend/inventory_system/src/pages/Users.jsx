@@ -11,7 +11,7 @@ const Users = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await api.get('/api/users/');
+      const response = await api.get('users/');
       setUsers(response.data);
     } catch (error) {
       console.error('Failed to fetch users:', error);
@@ -20,7 +20,7 @@ const Users = () => {
 
   const toggleActivation = async (userId, currentStatus) => {
     try {
-      const response = await api.patch(`/api/users/${userId}/`, {
+      const response = await api.patch(`users/${userId}/`, {
         is_active: !currentStatus,
       });
       toast.success(`✅ User ${response.data.username} is now ${response.data.is_active ? 'active' : 'inactive'}`);

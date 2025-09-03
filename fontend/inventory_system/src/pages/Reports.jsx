@@ -15,7 +15,7 @@ const Reports = () => {
 
   const fetchTodayReport = async () => {
     try {
-      const response = await api.get('/api/overview/');
+      const response = await api.get('overview/');
       setReport(response.data.report);
       setReportMessage(response.data.report_message);
     } catch (error) {
@@ -27,7 +27,7 @@ const Reports = () => {
     if (!selectedDate) return;
 
     try {
-      const response = await api.get(`/api/reports/?date=${selectedDate}`);
+      const response = await api.get(`reports/?date=${selectedDate}`);
       if (response.data.length > 0) {
         setReport(response.data[0]);
         toast.info(`📅 Report loaded for ${selectedDate}`);
@@ -43,7 +43,7 @@ const Reports = () => {
 
   const handleCreateReport = async () => {
     try {
-      const response = await api.post('/api/reports/', { notes: newNotes });
+      const response = await api.post('reports/', { notes: newNotes });
       setReport(response.data);
       setNewNotes('');
       toast.success('✅ Report generated for today');
@@ -55,7 +55,7 @@ const Reports = () => {
 
   const handleUpdateReport = async () => {
     try {
-      const response = await api.put(`/api/reports/${report.id}/`, { notes: report.notes });
+      const response = await api.put(`reports/${report.id}/`, { notes: report.notes });
       setReport(response.data);
       setEditMode(false);
       toast.success('💾 Notes updated');
@@ -67,7 +67,7 @@ const Reports = () => {
 
   const handleExportPDF = async () => {
     try {
-      const response = await api.get(`/api/reports/${report.id}/export_pdf/`, {
+      const response = await api.get(`reports/${report.id}/export_pdf/`, {
         responseType: 'blob',
       });
       const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
