@@ -108,8 +108,11 @@ const App = () => {
               </PrivateRoute>
             }
           >
-            {/* ✅ Overview is the default (index) route */}
+            {/* Default route for "/" */}
             <Route index element={<Overview />} />
+
+            {/* ✅ Alias route for "/overview" */}
+            <Route path="overview" element={<Overview />} />
 
             {/* Other dashboard routes */}
             <Route path="products" element={<Products />} />
@@ -128,3 +131,8 @@ const App = () => {
 };
 
 export default App;
+
+
+
+
+
