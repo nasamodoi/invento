@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import api from '../api';
+import { toast } from 'react-toastify';
 
 const Purchases = () => {
   const [purchases, setPurchases] = useState([]);
@@ -46,13 +47,21 @@ const Purchases = () => {
   const handleCreatePurchase = async () => {
     try {
       const { product, quantity, price_per_unit } = newPurchase;
+      if (parseInt(quantity) <= 0 || parseFloat(price_per_unit) <= 0) {
+        toast.error("❌ Quantity and price must be greater than zero");
+        return;
+      }
+
       const payload = { product, quantity, price_per_unit };
       const response = await api.post('purchases/', payload);
       setPurchases([...purchases, response.data]);
       setNewPurchase({ product: '', quantity: '', price_per_unit: '' });
       setSelectedProduct(null);
+      await fetchProducts(); // ✅ Refresh stock
+      toast.success('✅ Purchase recorded');
     } catch (error) {
       console.error('Failed to create purchase:', error.response?.data || error.message);
+      toast.error('❌ Failed to record purchase');
     }
   };
 
@@ -73,8 +82,11 @@ const Purchases = () => {
       setPurchases(purchases.map(p => (p.id === editPurchase.id ? response.data : p)));
       setEditPurchase(null);
       setSelectedProduct(null);
+      await fetchProducts(); // ✅ Refresh stock
+      toast.success('✅ Purchase updated');
     } catch (error) {
       console.error('Failed to update purchase:', error.response?.data || error.message);
+      toast.error('❌ Failed to update purchase');
     }
   };
 
@@ -82,6 +94,8 @@ const Purchases = () => {
     try {
       await api.delete(`purchases/${id}/`);
       setPurchases(purchases.filter(p => p.id !== id));
+      await fetchProducts(); // ✅ Refresh stock
+      toast.info('🗑️ Purchase deleted and stock adjusted');
     } catch (error) {
       console.error('Failed to delete purchase:', error);
     }
@@ -135,7 +149,9 @@ const Purchases = () => {
             >
               <option value="">Select Product</option>
               {products.map(product => (
-                <option key={product.id} value={product.id}>{product.name}</option>
+                <option key={product.id} value={product.id}>
+                  {product.name} ({product.quantity} in stock)
+                </option>
               ))}
             </select>
           </div>
@@ -223,15 +239,16 @@ const Purchases = () => {
                 onChange={handleInputChange}
               >
                 <option value="">Select Product</option>
-                {products.map(product => (
-                  <option key={product.id} value={product.id}>{product.name}</option>
+                {products.map(product => (<option key={product.id} value={product.id}>
+                    {product.name} ({product.quantity} in stock)
+                  </option>
                 ))}
               </select>
             </div>
             {selectedProduct && (
               <div className="col-md-12">
-               <p><strong>Current Buying Price:</strong> {formatTZS(selectedProduct.buying_price)}</p>
-            </div>
+                <p><strong>Current Buying Price:</strong> {formatTZS(selectedProduct.buying_price)}</p>
+              </div>
             )}
             <div className="col-md-4">
               <input
@@ -265,4 +282,3 @@ const Purchases = () => {
 };
 
 export default Purchases;
-             

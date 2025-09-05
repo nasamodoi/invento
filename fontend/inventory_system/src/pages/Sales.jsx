@@ -55,6 +55,7 @@ const Sales = () => {
       setFilteredSales([...sales, response.data]);
       setNewSale({ product: '', quantity: '', price_per_unit: '' });
       setSelectedProduct(null);
+      await fetchProducts(); // ✅ Refresh stock after sale
       toast.success('✅ Sale recorded successfully');
     } catch (error) {
       const msg = error.response?.data?.quantity || 'Failed to record sale';
@@ -81,6 +82,7 @@ const Sales = () => {
       setFilteredSales(updated);
       setEditSale(null);
       setSelectedProduct(null);
+      await fetchProducts(); // ✅ Refresh stock after update
       toast.success('✅ Sale updated');
     } catch (error) {
       const msg = error.response?.data?.quantity || 'Failed to update sale';
@@ -94,7 +96,8 @@ const Sales = () => {
       const updated = sales.filter(s => s.id !== id);
       setSales(updated);
       setFilteredSales(updated);
-      toast.info('🗑️ Sale deleted');
+      await fetchProducts(); // ✅ Refresh stock after deletion
+      toast.info('🗑️ Sale deleted and stock restored');
     } catch (error) {
       console.error('Failed to delete sale:', error);
     }
@@ -115,7 +118,7 @@ const Sales = () => {
         value={product.id}
         disabled={product.quantity === 0}
       >
-        {product.name} {product.quantity === 0 ? '— Out of Stock' : ''}
+        {product.name} ({product.quantity} in stock)
       </option>
     ));
   };
@@ -181,7 +184,7 @@ const Sales = () => {
           </div>
           {selectedProduct && (
             <div className="col-md-12">
-              <p><strong>Buying Price:</strong> {formatTZS(selectedProduct.buying_price)}</p>
+              <p><strong>Selling Price:</strong> {formatTZS(selectedProduct.buying_price)}</p>
             </div>
           )}
           <div className="col-md-4">

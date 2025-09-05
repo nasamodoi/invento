@@ -67,6 +67,16 @@ class PurchaseViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(purchased_by=self.request.user)
 
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        product = instance.product
+
+        # ✅ Revert stock safely before deleting purchase
+        product.quantity = max(product.quantity - instance.quantity, 0)
+        product.save()
+
+        return super().destroy(request, *args, **kwargs)
+
 # ---------------------
 # Sale ViewSet
 # ---------------------
@@ -77,6 +87,16 @@ class SaleViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(sold_by=self.request.user)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        product = instance.product
+
+        # ✅ Revert stock safely before deleting sale
+        product.quantity = max(product.quantity + instance.quantity, 0)
+        product.save()
+
+        return super().destroy(request, *args, **kwargs)
 
 # ---------------------
 # Expense ViewSet
