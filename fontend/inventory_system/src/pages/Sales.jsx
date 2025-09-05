@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import api from '../api';
 import { toast } from 'react-toastify';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 const Sales = () => {
   const [sales, setSales] = useState([]);
@@ -43,6 +44,14 @@ const Sales = () => {
     if (name === 'product') {
       const productObj = products.find(p => p.id === parseInt(value));
       setSelectedProduct(productObj || null);
+
+      // ✅ Auto-fill price_per_unit from selling_price
+      if (!editSale && productObj) {
+        setNewSale(prev => ({
+          ...prev,
+          price_per_unit: productObj.selling_price
+        }));
+      }
     }
   };
 
@@ -55,7 +64,7 @@ const Sales = () => {
       setFilteredSales([...sales, response.data]);
       setNewSale({ product: '', quantity: '', price_per_unit: '' });
       setSelectedProduct(null);
-      await fetchProducts(); // ✅ Refresh stock after sale
+      await fetchProducts();
       toast.success('✅ Sale recorded successfully');
     } catch (error) {
       const msg = error.response?.data?.quantity || 'Failed to record sale';
@@ -82,7 +91,7 @@ const Sales = () => {
       setFilteredSales(updated);
       setEditSale(null);
       setSelectedProduct(null);
-      await fetchProducts(); // ✅ Refresh stock after update
+      await fetchProducts();
       toast.success('✅ Sale updated');
     } catch (error) {
       const msg = error.response?.data?.quantity || 'Failed to update sale';
@@ -96,7 +105,7 @@ const Sales = () => {
       const updated = sales.filter(s => s.id !== id);
       setSales(updated);
       setFilteredSales(updated);
-      await fetchProducts(); // ✅ Refresh stock after deletion
+      await fetchProducts();
       toast.info('🗑️ Sale deleted and stock restored');
     } catch (error) {
       console.error('Failed to delete sale:', error);
@@ -150,7 +159,7 @@ const Sales = () => {
     <div className="container mt-4">
       <h2 className="mb-3">🧾 Sales</h2>
 
-      {/* 🔍 Search Bar */}
+      {/* Search Bar */}
       <div className="input-group mb-3">
         <input
           type="text"
@@ -184,7 +193,8 @@ const Sales = () => {
           </div>
           {selectedProduct && (
             <div className="col-md-12">
-              <p><strong>Selling Price:</strong> {formatTZS(selectedProduct.buying_price)}</p>
+              <p><strong>Buying Price:</strong> {formatTZS(selectedProduct.buying_price)}</p>
+              <p><strong>Selling Price:</strong> {formatTZS(selectedProduct.selling_price)}</p>
             </div>
           )}
           <div className="col-md-4">
@@ -279,6 +289,7 @@ const Sales = () => {
             {selectedProduct && (
               <div className="col-md-12">
                 <p><strong>Buying Price:</strong> {formatTZS(selectedProduct.buying_price)}</p>
+                <p><strong>Selling Price:</strong> {formatTZS(selectedProduct.selling_price)}</p>
               </div>
             )}
             <div className="col-md-4">

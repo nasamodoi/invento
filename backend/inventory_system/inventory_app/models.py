@@ -19,6 +19,7 @@ class Product(models.Model):
     description = models.TextField(blank=True)
     quantity = models.IntegerField(default=0)
     buying_price = models.DecimalField(max_digits=10, decimal_places=2)  # ✅ actual cost
+    selling_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)  # ✅ new field
     category = models.CharField(max_length=100, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

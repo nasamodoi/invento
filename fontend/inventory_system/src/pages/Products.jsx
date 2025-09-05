@@ -5,7 +5,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 const Products = () => {
   const [products, setProducts] = useState([]);
   const [newProduct, setNewProduct] = useState({
-    name: '', description: '', category: '', quantity: 0, buying_price: '',
+    name: '', description: '', category: '', quantity: 0, buying_price: '', selling_price: ''
   });
   const [editProduct, setEditProduct] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -33,7 +33,9 @@ const Products = () => {
     try {
       const response = await api.post('products/', newProduct);
       setProducts([...products, response.data]);
-      setNewProduct({ name: '', description: '', category: '', quantity: 0, buying_price: '' });
+      setNewProduct({
+        name: '', description: '', category: '', quantity: 0, buying_price: '', selling_price: ''
+      });
     } catch (error) {
       console.error('Failed to create product:', error);
     }
@@ -110,10 +112,10 @@ const Products = () => {
       <div className="card p-3 mb-4">
         <h4>Add New Product</h4>
         <div className="row g-2">
-          {['name', 'description', 'category', 'buying_price', 'quantity'].map((field) => (
+          {['name', 'description', 'category', 'buying_price', 'selling_price', 'quantity'].map((field) => (
             <div className="col-md-4" key={field}>
               <input
-                type={field === 'buying_price' || field === 'quantity' ? 'number' : 'text'}
+                type={['buying_price', 'selling_price', 'quantity'].includes(field) ? 'number' : 'text'}
                 className="form-control"
                 placeholder={field.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
                 name={field}
@@ -142,6 +144,7 @@ const Products = () => {
               <th>Description</th>
               <th>Category</th>
               <th>Buying Price</th>
+              <th>Selling Price</th>
               <th>Quantity</th>
               <th>Total Value</th>
               <th>Created At</th>
@@ -156,6 +159,7 @@ const Products = () => {
                 <td>{product.description}</td>
                 <td>{product.category}</td>
                 <td>{formatTZS(product.buying_price)}</td>
+                <td>{formatTZS(product.selling_price)}</td>
                 <td>{renderQuantityStatus(product)}</td>
                 <td>{formatTZS(product.total_value)}</td>
                 <td>{new Date(product.created_at).toLocaleString()}</td>
@@ -169,15 +173,15 @@ const Products = () => {
         </table>
       )}
 
-      {/* Edit Modal */}
+      {/* Edit Product Form */}
       {editProduct && (
         <div className="card p-3 mt-4">
           <h4>Edit Product</h4>
           <div className="row g-2">
-            {['name', 'description', 'category', 'buying_price', 'quantity'].map((field) => (
+            {['name', 'description', 'category', 'buying_price', 'selling_price', 'quantity'].map((field) => (
               <div className="col-md-4" key={field}>
                 <input
-                  type={field === 'buying_price' || field === 'quantity' ? 'number' : 'text'}
+                  type={['buying_price', 'selling_price', 'quantity'].includes(field) ? 'number' : 'text'}
                   className="form-control"
                   placeholder={field.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
                   name={field}
