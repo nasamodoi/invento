@@ -1,100 +1,3 @@
-# from rest_framework import serializers
-# from .models import User, Product, Purchase, Sale, Expense, Report, Setting
-# from django.contrib.auth.password_validation import validate_password
-# from django.contrib.auth import get_user_model
-
-# # ---------------------
-# # User Serializer
-# # ---------------------
-# class UserSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = get_user_model()
-#         fields = ['id', 'username', 'email', 'is_admin', 'is_staff_user']
-
-# class UserRegisterSerializer(serializers.ModelSerializer):
-#     password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
-#     password2 = serializers.CharField(write_only=True, required=True)
-
-#     class Meta:
-#         model = get_user_model()
-#         fields = ['username', 'email', 'password', 'password2', 'is_admin', 'is_staff_user']
-
-#     def validate(self, attrs):
-#         if attrs['password'] != attrs['password2']:
-#             raise serializers.ValidationError({'password': "Password fields didn't match."})
-#         return attrs
-
-#     def create(self, validated_data):
-#         validated_data.pop('password2')
-#         user = get_user_model().objects.create_user(**validated_data)
-#         return user
-
-# # ---------------------
-# # Product Serializer
-# # ---------------------
-# class ProductSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Product
-#         fields = '__all__'
-
-# # ---------------------
-# # Purchase Serializer
-# # ---------------------
-# class PurchaseSerializer(serializers.ModelSerializer):
-#     product_name = serializers.CharField(source='product.name', read_only=True)
-#     purchased_by_username = serializers.CharField(source='purchased_by.username', read_only=True)
-
-#     class Meta:
-#         model = Purchase
-#         fields = '__all__'
-
-# # ---------------------
-# # Sale Serializer
-# # ---------------------
-# class SaleSerializer(serializers.ModelSerializer):
-#     product_name = serializers.CharField(source='product.name', read_only=True)
-#     sold_by_username = serializers.CharField(source='sold_by.username', read_only=True)
-#     amount = serializers.SerializerMethodField()
-
-#     class Meta:
-#         model = Sale
-#         fields = ['id', 'product', 'product_name', 'quantity', 'price_per_unit', 'amount', 'sold_by', 'sold_by_username', 'sold_at']
-
-#     def get_amount(self, obj):
-#         return obj.price_per_unit * obj.quantity
-
-
-# # ---------------------
-# # Expense Serializer
-# # ---------------------
-# class ExpenseSerializer(serializers.ModelSerializer):
-#     spent_by_username = serializers.CharField(source='spent_by.username', read_only=True)
-
-#     class Meta:
-#         model = Expense
-#         fields = '__all__'
-
-# # ---------------------
-# # Report Serializer
-# # ---------------------
-# class ReportSerializer(serializers.ModelSerializer):
-#     generated_by_username = serializers.CharField(source='generated_by.username', read_only=True)
-
-#     class Meta:
-#         model = Report
-#         fields = '__all__'
-
-# # ---------------------
-# # Setting Serializer
-# # ---------------------
-# class SettingSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Setting
-#         fields = '__all__'
-
-
-
-
 from rest_framework import serializers
 from .models import User, Product, Purchase, Sale, Expense, Report, Setting
 from django.contrib.auth.password_validation import validate_password
@@ -134,13 +37,17 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 # ---------------------
 class ProductSerializer(serializers.ModelSerializer):
     low_stock = serializers.SerializerMethodField()
+    total_value = serializers.SerializerMethodField()  # ✅ total product value (buying_price × quantity)
 
     class Meta:
         model = Product
         fields = '__all__'
 
     def get_low_stock(self, obj):
-        return obj.quantity <= 5  # ✅ Threshold for low stock alert
+        return obj.quantity <= 5
+
+    def get_total_value(self, obj):
+        return obj.buying_price * obj.quantity
 
 # ---------------------
 # Purchase Serializer
@@ -162,23 +69,31 @@ class PurchaseSerializer(serializers.ModelSerializer):
         product = validated_data['product']
         quantity = validated_data['quantity']
 
-        # ✅ Increase product stock
         product.quantity += quantity
         product.save()
 
         return super().create(validated_data)
 
 # ---------------------
-# Sale Serializer (with stock validation and deduction)
+# Sale Serializer (with buying price reference)
 # ---------------------
 class SaleSerializer(serializers.ModelSerializer):
     product_name = serializers.CharField(source='product.name', read_only=True)
     sold_by_username = serializers.CharField(source='sold_by.username', read_only=True)
     amount = serializers.SerializerMethodField()
-
+    buying_price = serializers.DecimalField(
+    source='product.buying_price',
+    max_digits=10,
+    decimal_places=2,
+    read_only=True
+)
     class Meta:
         model = Sale
-        fields = ['id', 'product', 'product_name', 'quantity', 'price_per_unit', 'amount', 'sold_by', 'sold_by_username', 'sold_at']
+        fields = [
+            'id', 'product', 'product_name', 'buying_price',
+            'quantity', 'price_per_unit', 'amount',
+            'sold_by', 'sold_by_username', 'sold_at'
+        ]
 
     def get_amount(self, obj):
         return obj.price_per_unit * obj.quantity
@@ -198,7 +113,6 @@ class SaleSerializer(serializers.ModelSerializer):
         product = validated_data['product']
         quantity = validated_data['quantity']
 
-        # Deduct stock
         product.quantity -= quantity
         product.save()
 
@@ -215,14 +129,18 @@ class ExpenseSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 # ---------------------
-# Report Serializer
+# Report Serializer (with total product price)
 # ---------------------
 class ReportSerializer(serializers.ModelSerializer):
     generated_by_username = serializers.CharField(source='generated_by.username', read_only=True)
 
     class Meta:
         model = Report
-        fields = '__all__'
+        fields = [
+            'id', 'generated_by', 'generated_by_username', 'generated_at',
+            'notes', 'total_sales', 'total_purchases',
+            'total_expenses', 'net_profit', 'total_product_price'  # ✅ added field
+        ]
 
 # ---------------------
 # Setting Serializer

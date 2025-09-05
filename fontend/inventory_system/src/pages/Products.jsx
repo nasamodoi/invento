@@ -5,7 +5,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 const Products = () => {
   const [products, setProducts] = useState([]);
   const [newProduct, setNewProduct] = useState({
-    name: '', description: '', category: '', quantity: 0, price: '',
+    name: '', description: '', category: '', quantity: 0, buying_price: '',
   });
   const [editProduct, setEditProduct] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -33,7 +33,7 @@ const Products = () => {
     try {
       const response = await api.post('products/', newProduct);
       setProducts([...products, response.data]);
-      setNewProduct({ name: '', description: '', category: '', quantity: 0, price: '' });
+      setNewProduct({ name: '', description: '', category: '', quantity: 0, buying_price: '' });
     } catch (error) {
       console.error('Failed to create product:', error);
     }
@@ -110,12 +110,12 @@ const Products = () => {
       <div className="card p-3 mb-4">
         <h4>Add New Product</h4>
         <div className="row g-2">
-          {['name', 'description', 'category', 'price', 'quantity'].map((field) => (
+          {['name', 'description', 'category', 'buying_price', 'quantity'].map((field) => (
             <div className="col-md-4" key={field}>
               <input
-                type={field === 'price' || field === 'quantity' ? 'number' : 'text'}
+                type={field === 'buying_price' || field === 'quantity' ? 'number' : 'text'}
                 className="form-control"
-                placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
+                placeholder={field.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
                 name={field}
                 value={newProduct[field]}
                 onChange={handleInputChange}
@@ -141,8 +141,9 @@ const Products = () => {
               <th>Name</th>
               <th>Description</th>
               <th>Category</th>
-              <th>Price</th>
+              <th>Buying Price</th>
               <th>Quantity</th>
+              <th>Total Value</th>
               <th>Created At</th>
               <th>Actions</th>
             </tr>
@@ -154,8 +155,9 @@ const Products = () => {
                 <td>{product.name}</td>
                 <td>{product.description}</td>
                 <td>{product.category}</td>
-                <td>{formatTZS(product.price)}</td>
+                <td>{formatTZS(product.buying_price)}</td>
                 <td>{renderQuantityStatus(product)}</td>
+                <td>{formatTZS(product.total_value)}</td>
                 <td>{new Date(product.created_at).toLocaleString()}</td>
                 <td>
                   <button className="btn btn-sm btn-warning me-2" onClick={() => handleEdit(product)}>Edit</button>
@@ -172,12 +174,12 @@ const Products = () => {
         <div className="card p-3 mt-4">
           <h4>Edit Product</h4>
           <div className="row g-2">
-            {['name', 'description', 'category', 'price', 'quantity'].map((field) => (
+            {['name', 'description', 'category', 'buying_price', 'quantity'].map((field) => (
               <div className="col-md-4" key={field}>
                 <input
-                  type={field === 'price' || field === 'quantity' ? 'number' : 'text'}
+                  type={field === 'buying_price' || field === 'quantity' ? 'number' : 'text'}
                   className="form-control"
-                  placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
+                  placeholder={field.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
                   name={field}
                   value={editProduct[field]}
                   onChange={handleInputChange}

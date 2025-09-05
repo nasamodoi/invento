@@ -45,6 +45,8 @@
 .card-purchases { background: linear-gradient(135deg, #00c6ff, #0072ff); }
 .card-expenses { background: linear-gradient(135deg, #ff416c, #ff4b2b); }
 .card-profit { background: linear-gradient(135deg, #43cea2, #185a9d); }
+.card-inventory {background: linear-gradient(135deg, #af6b1e, #18b833); /* Violet to deep purple */
+}
 
 /* Recent Activity */
 .list-group-item {

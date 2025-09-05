@@ -4,10 +4,9 @@ import api from '../api';
 const Purchases = () => {
   const [purchases, setPurchases] = useState([]);
   const [products, setProducts] = useState([]);
-  const [newPurchase, setNewPurchase] = useState({
-    product: '', quantity: '', price_per_unit: ''
-  });
+  const [newPurchase, setNewPurchase] = useState({ product: '', quantity: '', price_per_unit: '' });
   const [editPurchase, setEditPurchase] = useState(null);
+  const [selectedProduct, setSelectedProduct] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
@@ -37,6 +36,11 @@ const Purchases = () => {
     const { name, value } = e.target;
     const updater = editPurchase ? setEditPurchase : setNewPurchase;
     updater(prev => ({ ...prev, [name]: value }));
+
+    if (name === 'product') {
+      const productObj = products.find(p => p.id === parseInt(value));
+      setSelectedProduct(productObj || null);
+    }
   };
 
   const handleCreatePurchase = async () => {
@@ -46,6 +50,7 @@ const Purchases = () => {
       const response = await api.post('purchases/', payload);
       setPurchases([...purchases, response.data]);
       setNewPurchase({ product: '', quantity: '', price_per_unit: '' });
+      setSelectedProduct(null);
     } catch (error) {
       console.error('Failed to create purchase:', error.response?.data || error.message);
     }
@@ -56,6 +61,8 @@ const Purchases = () => {
       ...purchase,
       purchased_at: new Date(purchase.purchased_at).toISOString().slice(0, 16)
     });
+    const productObj = products.find(p => p.id === purchase.product);
+    setSelectedProduct(productObj || null);
   };
 
   const handleUpdatePurchase = async () => {
@@ -65,6 +72,7 @@ const Purchases = () => {
       const response = await api.put(`purchases/${editPurchase.id}/`, payload);
       setPurchases(purchases.map(p => (p.id === editPurchase.id ? response.data : p)));
       setEditPurchase(null);
+      setSelectedProduct(null);
     } catch (error) {
       console.error('Failed to update purchase:', error.response?.data || error.message);
     }
@@ -131,6 +139,11 @@ const Purchases = () => {
               ))}
             </select>
           </div>
+          {selectedProduct && (
+            <div className="col-md-12">
+              <p><strong>Current Buying Price:</strong> {formatTZS(selectedProduct.buying_price)}</p>
+            </div>
+          )}
           <div className="col-md-4">
             <input
               type="number"
@@ -183,7 +196,7 @@ const Purchases = () => {
                 <td>{purchase.product_name}</td>
                 <td>{purchase.quantity}</td>
                 <td>{formatTZS(purchase.price_per_unit)}</td>
-                <td>{formatTZS(purchase.quantity * purchase.price_per_unit)}</td>
+                <td>{formatTZS(purchase.amount)}</td>
                 <td>{purchase.purchased_by_username || '—'}</td>
                 <td>{new Date(purchase.purchased_at).toLocaleString()}</td>
                 <td>
@@ -215,6 +228,11 @@ const Purchases = () => {
                 ))}
               </select>
             </div>
+            {selectedProduct && (
+              <div className="col-md-12">
+               <p><strong>Current Buying Price:</strong> {formatTZS(selectedProduct.buying_price)}</p>
+            </div>
+            )}
             <div className="col-md-4">
               <input
                 type="number"
@@ -247,3 +265,4 @@ const Purchases = () => {
 };
 
 export default Purchases;
+             

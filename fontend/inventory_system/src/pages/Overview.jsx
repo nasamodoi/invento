@@ -6,7 +6,7 @@ import './Overview.css';
 const Overview = () => {
   const [stats, setStats] = useState(null);
   const [recent, setRecent] = useState([]);
-  const [theme, setTheme] = useState('dark'); // 'dark' or 'light'
+  const [theme, setTheme] = useState('dark');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -96,6 +96,15 @@ const Overview = () => {
             <div className="card-body">
               <h5>Net Profit</h5>
               <p>{formatTZS(stats.net_profit)}</p>
+            </div>
+          </div>
+        </div>
+        {/* ✅ New Card for Total Product Value */}
+        <div className="col-md-4 mb-3">
+          <div className="card card-inventory">
+            <div className="card-body">
+              <h5>Total Product Value</h5>
+              <p>{formatTZS(stats.total_product_price)}</p>
             </div>
           </div>
         </div>

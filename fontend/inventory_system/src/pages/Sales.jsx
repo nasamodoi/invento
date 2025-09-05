@@ -6,10 +6,9 @@ const Sales = () => {
   const [sales, setSales] = useState([]);
   const [filteredSales, setFilteredSales] = useState([]);
   const [products, setProducts] = useState([]);
-  const [newSale, setNewSale] = useState({
-    product: '', quantity: '', price_per_unit: ''
-  });
+  const [newSale, setNewSale] = useState({ product: '', quantity: '', price_per_unit: '' });
   const [editSale, setEditSale] = useState(null);
+  const [selectedProduct, setSelectedProduct] = useState(null);
   const [search, setSearch] = useState('');
 
   useEffect(() => {
@@ -40,6 +39,11 @@ const Sales = () => {
     const { name, value } = e.target;
     const updater = editSale ? setEditSale : setNewSale;
     updater(prev => ({ ...prev, [name]: value }));
+
+    if (name === 'product') {
+      const productObj = products.find(p => p.id === parseInt(value));
+      setSelectedProduct(productObj || null);
+    }
   };
 
   const handleCreateSale = async () => {
@@ -50,6 +54,7 @@ const Sales = () => {
       setSales([...sales, response.data]);
       setFilteredSales([...sales, response.data]);
       setNewSale({ product: '', quantity: '', price_per_unit: '' });
+      setSelectedProduct(null);
       toast.success('✅ Sale recorded successfully');
     } catch (error) {
       const msg = error.response?.data?.quantity || 'Failed to record sale';
@@ -62,6 +67,8 @@ const Sales = () => {
       ...sale,
       sold_at: new Date(sale.sold_at).toISOString().slice(0, 16)
     });
+    const productObj = products.find(p => p.id === sale.product);
+    setSelectedProduct(productObj || null);
   };
 
   const handleUpdateSale = async () => {
@@ -73,6 +80,7 @@ const Sales = () => {
       setSales(updated);
       setFilteredSales(updated);
       setEditSale(null);
+      setSelectedProduct(null);
       toast.success('✅ Sale updated');
     } catch (error) {
       const msg = error.response?.data?.quantity || 'Failed to update sale';
@@ -112,7 +120,6 @@ const Sales = () => {
     ));
   };
 
-  // 🔍 Handle Search
   const handleSearch = (e) => {
     const query = e.target.value.toLowerCase();
     setSearch(query);
@@ -172,6 +179,11 @@ const Sales = () => {
               {renderProductOptions()}
             </select>
           </div>
+          {selectedProduct && (
+            <div className="col-md-12">
+              <p><strong>Buying Price:</strong> {formatTZS(selectedProduct.buying_price)}</p>
+            </div>
+          )}
           <div className="col-md-4">
             <input
               type="number"
@@ -188,7 +200,7 @@ const Sales = () => {
               className="form-control"
               name="price_per_unit"
               value={newSale.price_per_unit}
-              placeholder="Price per unit"
+              placeholder="Selling Price"
               onChange={handleInputChange}
             />
           </div>
@@ -209,9 +221,10 @@ const Sales = () => {
             <tr>
               <th>#</th>
               <th>Product</th>
+              <th>Buying Price</th>
               <th>Quantity</th>
-              <th>Unit Price</th>
-              <th>Total Price</th>
+              <th>Selling Price</th>
+              <th>Total</th>
               <th>Sold By</th>
               <th>Date</th>
               <th>Actions</th>
@@ -222,8 +235,14 @@ const Sales = () => {
               <tr key={sale.id || index}>
                 <td>{index + 1}</td>
                 <td>{sale.product_name}</td>
+                <td>{formatTZS(sale.buying_price)}</td>
                 <td>{sale.quantity}</td>
-                <td>{formatTZS(sale.price_per_unit)}</td>
+                <td>
+                  {formatTZS(sale.price_per_unit)}
+                  {sale.price_per_unit < sale.buying_price && (
+                    <span className="text-warning ms-2">⚠️</span>
+                  )}
+                </td>
                 <td>{formatTZS(sale.amount)}</td>
                 <td>{sale.sold_by_username || '—'}</td>
                 <td>{new Date(sale.sold_at).toLocaleString()}</td>
@@ -254,6 +273,11 @@ const Sales = () => {
                 {renderProductOptions()}
               </select>
             </div>
+            {selectedProduct && (
+              <div className="col-md-12">
+                <p><strong>Buying Price:</strong> {formatTZS(selectedProduct.buying_price)}</p>
+              </div>
+            )}
             <div className="col-md-4">
               <input
                 type="number"
@@ -270,7 +294,7 @@ const Sales = () => {
                 className="form-control"
                 name="price_per_unit"
                 value={editSale.price_per_unit}
-                placeholder="Price per unit"
+                placeholder="Selling Price"
                 onChange={handleInputChange}
               />
             </div>

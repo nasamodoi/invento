@@ -25,7 +25,6 @@ const Reports = () => {
 
   const handleFetchByDate = async () => {
     if (!selectedDate) return;
-
     try {
       const response = await api.get(`reports/?date=${selectedDate}`);
       if (response.data.length > 0) {
@@ -134,6 +133,7 @@ const Reports = () => {
           <p><strong>Total Purchases:</strong> {formatTZS(report.total_purchases)}</p>
           <p><strong>Total Expenses:</strong> {formatTZS(report.total_expenses)}</p>
           <p><strong>Net Profit:</strong> {formatTZS(report.net_profit)}</p>
+          <p><strong>Total Product Value:</strong> {formatTZS(report.total_product_price)}</p>
           <p><strong>Notes:</strong> {editMode ? (
             <textarea
               className="form-control mb-2"

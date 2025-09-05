@@ -1,4 +1,4 @@
-from django.db.models import Sum, Avg, Max
+from django.db.models import Sum, Avg, Max, F
 from django.shortcuts import render
 from rest_framework import viewsets, permissions
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
@@ -11,13 +11,12 @@ from .serializers import (
     ReportSerializer, SettingSerializer
 )
 from django.http import HttpResponse
-from reportlab.lib.pagesizes import A4 # pyright: ignore[reportMissingModuleSource]
-from reportlab.pdfgen import canvas # pyright: ignore[reportMissingModuleSource]
+from reportlab.lib.pagesizes import A4  # pyright: ignore[reportMissingModuleSource]
+from reportlab.pdfgen import canvas  # pyright: ignore[reportMissingModuleSource]
 from io import BytesIO
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.generics import CreateAPIView
-
 
 # ---------------------
 # Custom Permissions
@@ -94,7 +93,7 @@ class ExpenseViewSet(viewsets.ModelViewSet):
 # Report ViewSet
 # ---------------------
 class ReportViewSet(viewsets.ModelViewSet):
-    queryset = Report.objects.all()  # ✅ Required for router registration
+    queryset = Report.objects.all()
     serializer_class = ReportSerializer
     permission_classes = [IsAuthenticated]
 
@@ -114,12 +113,17 @@ class ReportViewSet(viewsets.ModelViewSet):
         average_sale = Sale.objects.aggregate(Avg('amount'))['amount__avg'] or 0
         highest_expense = Expense.objects.aggregate(Max('amount'))['amount__max'] or 0
 
+        total_product_price = Product.objects.aggregate(
+            total=Sum(F('buying_price') * F('quantity'))
+        )['total'] or 0
+
         serializer.save(
             generated_by=self.request.user,
             total_sales=total_sales,
             total_purchases=total_purchases,
             total_expenses=total_expenses,
             net_profit=net_profit,
+            total_product_price=total_product_price,
             notes=f"Average Sale: TSh {average_sale:,.2f}, Highest Expense: TSh {highest_expense:,.2f}"
         )
 
@@ -143,9 +147,10 @@ class ReportViewSet(viewsets.ModelViewSet):
         p.drawString(50, y - 20, f"Total Purchases: TSh {report.total_purchases:,.2f}")
         p.drawString(50, y - 40, f"Total Expenses: TSh {report.total_expenses:,.2f}")
         p.drawString(50, y - 60, f"Net Profit: TSh {report.net_profit:,.2f}")
+        p.drawString(50, y - 80, f"Total Product Value: TSh {report.total_product_price:,.2f}")  # ✅ Added line
 
-        p.drawString(50, y - 100, "Notes:")
-        text_obj = p.beginText(50, y - 120)
+        p.drawString(50, y - 120, "Notes:")
+        text_obj = p.beginText(50, y - 140)
         text_obj.setFont("Helvetica-Oblique", 11)
         for line in report.notes.splitlines():
             text_obj.textLine(line)
@@ -182,7 +187,10 @@ def overview(request):
         ) - (
             Purchase.objects.aggregate(total=Sum('amount'))['total'] or 0 +
             Expense.objects.aggregate(total=Sum('amount'))['total'] or 0
-        )
+        ),
+        'total_product_price': Product.objects.aggregate(
+            total=Sum(F('buying_price') * F('quantity'))
+        )['total'] or 0
     }
 
     recent_sales = Sale.objects.order_by('-sold_at')[:2]
@@ -214,9 +222,6 @@ def report_dates(request):
     dates = Report.objects.values_list('generated_at', flat=True)
     unique_dates = sorted(set(dt.date() for dt in dates))
     return Response({'dates': [d.isoformat() for d in unique_dates]})
-
-
-    
 
 def frontend(request):
     return render(request, 'index.html')
