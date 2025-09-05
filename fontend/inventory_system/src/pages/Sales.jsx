@@ -45,7 +45,6 @@ const Sales = () => {
       const productObj = products.find(p => p.id === parseInt(value));
       setSelectedProduct(productObj || null);
 
-      // ✅ Auto-fill price_per_unit from selling_price
       if (!editSale && productObj) {
         setNewSale(prev => ({
           ...prev,
@@ -193,7 +192,6 @@ const Sales = () => {
           </div>
           {selectedProduct && (
             <div className="col-md-12">
-              <p><strong>Buying Price:</strong> {formatTZS(selectedProduct.buying_price)}</p>
               <p><strong>Selling Price:</strong> {formatTZS(selectedProduct.selling_price)}</p>
             </div>
           )}
@@ -234,7 +232,6 @@ const Sales = () => {
             <tr>
               <th>#</th>
               <th>Product</th>
-              <th>Buying Price</th>
               <th>Quantity</th>
               <th>Selling Price</th>
               <th>Total</th>
@@ -248,14 +245,8 @@ const Sales = () => {
               <tr key={sale.id || index}>
                 <td>{index + 1}</td>
                 <td>{sale.product_name}</td>
-                <td>{formatTZS(sale.buying_price)}</td>
                 <td>{sale.quantity}</td>
-                <td>
-                  {formatTZS(sale.price_per_unit)}
-                  {sale.price_per_unit < sale.buying_price && (
-                    <span className="text-warning ms-2">⚠️</span>
-                  )}
-                </td>
+                <td>{formatTZS(sale.price_per_unit)}</td>
                 <td>{formatTZS(sale.amount)}</td>
                 <td>{sale.sold_by_username || '—'}</td>
                 <td>{new Date(sale.sold_at).toLocaleString()}</td>
@@ -269,7 +260,7 @@ const Sales = () => {
         </table>
       )}
 
-      {/* Edit Sale Form */}
+           {/* Edit Sale Form */}
       {editSale && (
         <div className="card p-3 mt-4">
           <h4>Edit Sale</h4>
@@ -288,7 +279,6 @@ const Sales = () => {
             </div>
             {selectedProduct && (
               <div className="col-md-12">
-                <p><strong>Buying Price:</strong> {formatTZS(selectedProduct.buying_price)}</p>
                 <p><strong>Selling Price:</strong> {formatTZS(selectedProduct.selling_price)}</p>
               </div>
             )}
@@ -324,3 +314,4 @@ const Sales = () => {
 };
 
 export default Sales;
+         
