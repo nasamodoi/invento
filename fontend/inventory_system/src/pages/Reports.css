@@ -1,0 +1,85 @@
+/* ---------- Container ---------- */
+.container-fluid {
+  padding: 20px;
+}
+
+/* ---------- Headings ---------- */
+h2, h4 {
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+/* ---------- Date Picker ---------- */
+.d-flex.flex-wrap.gap-2 {
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.d-flex.flex-wrap.gap-2 input[type="date"] {
+  min-width: 200px;
+  flex: 1;
+}
+
+.d-flex.flex-wrap.gap-2 .btn {
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+/* ---------- Report Card ---------- */
+.card {
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.card p {
+  font-size: 0.95rem;
+  margin-bottom: 8px;
+}
+
+.card textarea {
+  border-radius: 8px;
+  font-size: 0.95rem;
+}
+
+/* ---------- Buttons ---------- */
+.btn {
+  font-size: 0.95rem;
+  padding: 10px 16px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+}
+
+.btn-warning:hover {
+  background-color: #e0a800;
+}
+
+.btn-secondary:hover {
+  background-color: #6c757d;
+  color: white;
+}
+
+/* ---------- Responsive Layout ---------- */
+@media (max-width: 768px) {
+  .card {
+    padding: 16px;
+  }
+
+  .btn {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .d-flex.flex-wrap.gap-2 {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .d-flex.flex-wrap.gap-2 .btn {
+    width: 100%;
+  }
+}

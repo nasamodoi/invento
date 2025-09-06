@@ -1,0 +1,104 @@
+/* ---------- Container ---------- */
+.container-fluid {
+  padding: 20px;
+}
+
+/* ---------- Section Headings ---------- */
+h2, h4 {
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+/* ---------- Search Bar ---------- */
+.search-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.search-bar input {
+  flex: 1;
+  min-width: 220px;
+}
+
+/* ---------- Form Styling ---------- */
+.card input.form-control {
+  border-radius: 8px;
+  font-size: 0.95rem;
+}
+
+.card button {
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+/* ---------- Table Styling ---------- */
+.table-responsive {
+  overflow-x: auto;
+}
+
+.table th, .table td {
+  vertical-align: middle;
+  font-size: 0.95rem;
+}
+
+.table-hover tbody tr:hover {
+  background-color: #f1f1f1;
+}
+
+/* ---------- Badges ---------- */
+.badge {
+  font-size: 0.85rem;
+  padding: 6px 10px;
+  border-radius: 12px;
+}
+
+.badge.bg-danger {
+  background-color: #dc3545;
+}
+
+.badge.bg-warning {
+  background-color: #ffc107;
+  color: #212529;
+}
+
+/* ---------- Action Buttons ---------- */
+.btn-sm {
+  font-size: 0.85rem;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+.btn-warning:hover {
+  background-color: #e0a800;
+}
+
+.btn-danger:hover {
+  background-color: #c82333;
+}
+
+/* ---------- Responsive Layout ---------- */
+@media (max-width: 768px) {
+  .row.g-2 > div {
+    width: 100%;
+  }
+
+  .table th, .table td {
+    font-size: 0.85rem;
+  }
+
+  .card {
+    padding: 16px;
+  }
+
+  .btn {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .btn-group {
+    flex-direction: column;
+    gap: 10px;
+  }
+}

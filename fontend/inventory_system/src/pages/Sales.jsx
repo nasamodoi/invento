@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import api from '../api';
 import { toast } from 'react-toastify';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import './Sales.css';
 
 const Sales = () => {
   const [sales, setSales] = useState([]);
@@ -59,8 +60,9 @@ const Sales = () => {
       const { product, quantity, price_per_unit } = newSale;
       const payload = { product, quantity, price_per_unit };
       const response = await api.post('sales/', payload);
-      setSales([...sales, response.data]);
-      setFilteredSales([...sales, response.data]);
+      const updated = [...sales, response.data];
+      setSales(updated);
+      setFilteredSales(updated);
       setNewSale({ product: '', quantity: '', price_per_unit: '' });
       setSelectedProduct(null);
       await fetchProducts();
@@ -155,7 +157,7 @@ const Sales = () => {
   };
 
   return (
-    <div className="container mt-4">
+    <div className="container-fluid mt-4">
       <h2 className="mb-3">🧾 Sales</h2>
 
       {/* Search Bar */}
@@ -178,7 +180,7 @@ const Sales = () => {
       <div className="card p-3 mb-4">
         <h4>Add New Sale</h4>
         <div className="row g-2">
-          <div className="col-md-4">
+          <div className="col-md-4 col-sm-6">
             <label className="form-label">Product</label>
             <select
               className="form-select"
@@ -191,11 +193,11 @@ const Sales = () => {
             </select>
           </div>
           {selectedProduct && (
-            <div className="col-md-12">
+            <div className="col-12">
               <p><strong>Selling Price:</strong> {formatTZS(selectedProduct.selling_price)}</p>
             </div>
           )}
-          <div className="col-md-4">
+          <div className="col-md-4 col-sm-6">
             <input
               type="number"
               className="form-control"
@@ -205,7 +207,7 @@ const Sales = () => {
               onChange={handleInputChange}
             />
           </div>
-          <div className="col-md-4">
+          <div className="col-md-4 col-sm-6">
             <input
               type="number"
               className="form-control"
@@ -215,7 +217,7 @@ const Sales = () => {
               onChange={handleInputChange}
             />
           </div>
-          <div className="col-md-3 mt-3">
+          <div className="col-md-3 col-sm-6 mt-3">
             <button className="btn btn-success w-100" onClick={handleCreateSale}>
               ➕ Add Sale
             </button>
@@ -227,45 +229,47 @@ const Sales = () => {
       {filteredSales.length === 0 ? (
         <div className="alert alert-warning">No sales records available.</div>
       ) : (
-        <table className="table table-bordered table-hover">
-          <thead className="table-dark">
-            <tr>
-              <th>#</th>
-              <th>Product</th>
-              <th>Quantity</th>
-              <th>Selling Price</th>
-              <th>Total</th>
-              <th>Sold By</th>
-              <th>Date</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredSales.map((sale, index) => (
-              <tr key={sale.id || index}>
-                <td>{index + 1}</td>
-                <td>{sale.product_name}</td>
-                <td>{sale.quantity}</td>
-                <td>{formatTZS(sale.price_per_unit)}</td>
-                <td>{formatTZS(sale.amount)}</td>
-                <td>{sale.sold_by_username || '—'}</td>
-                <td>{new Date(sale.sold_at).toLocaleString()}</td>
-                <td>
-                  <button className="btn btn-sm btn-warning me-2" onClick={() => handleEdit(sale)}>Edit</button>
-                  <button className="btn btn-sm btn-danger" onClick={() => handleDelete(sale.id)}>Delete</button>
-                </td>
+        <div className="table-responsive">
+          <table className="table table-bordered table-hover">
+            <thead className="table-dark">
+              <tr>
+                <th>#</th>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Selling Price</th>
+                <th>Total</th>
+                <th>Sold By</th>
+                <th>Date</th>
+                <th>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {filteredSales.map((sale, index) => (
+                <tr key={sale.id || index}>
+                  <td>{index + 1}</td>
+                  <td>{sale.product_name}</td>
+                  <td>{sale.quantity}</td>
+                  <td>{formatTZS(sale.price_per_unit)}</td>
+                  <td>{formatTZS(sale.amount)}</td>
+                  <td>{sale.sold_by_username || '—'}</td>
+                  <td>{new Date(sale.sold_at).toLocaleString()}</td>
+                  <td>
+                    <button className="btn btn-sm btn-warning me-2" onClick={() => handleEdit(sale)}>Edit</button>
+                                        <button className="btn btn-sm btn-danger" onClick={() => handleDelete(sale.id)}>Delete</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
 
-           {/* Edit Sale Form */}
+      {/* Edit Sale Form */}
       {editSale && (
         <div className="card p-3 mt-4">
           <h4>Edit Sale</h4>
           <div className="row g-2">
-            <div className="col-md-4">
+            <div className="col-md-4 col-sm-6">
               <label className="form-label">Product</label>
               <select
                 className="form-select"
@@ -278,11 +282,11 @@ const Sales = () => {
               </select>
             </div>
             {selectedProduct && (
-              <div className="col-md-12">
+              <div className="col-12">
                 <p><strong>Selling Price:</strong> {formatTZS(selectedProduct.selling_price)}</p>
               </div>
             )}
-            <div className="col-md-4">
+            <div className="col-md-4 col-sm-6">
               <input
                 type="number"
                 className="form-control"
@@ -292,7 +296,7 @@ const Sales = () => {
                 onChange={handleInputChange}
               />
             </div>
-            <div className="col-md-4">
+            <div className="col-md-4 col-sm-6">
               <input
                 type="number"
                 className="form-control"
@@ -302,7 +306,7 @@ const Sales = () => {
                 onChange={handleInputChange}
               />
             </div>
-            <div className="col-md-3 mt-3 d-flex">
+            <div className="col-md-3 col-sm-6 mt-3 d-flex">
               <button className="btn btn-primary w-100 me-2" onClick={handleUpdateSale}>💾 Save</button>
               <button className="btn btn-secondary w-100" onClick={() => setEditSale(null)}>❌ Cancel</button>
             </div>
@@ -314,4 +318,3 @@ const Sales = () => {
 };
 
 export default Sales;
-         

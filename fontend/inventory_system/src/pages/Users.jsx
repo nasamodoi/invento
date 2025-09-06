@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import api from '../api';
 import { toast } from 'react-toastify';
+import './Users.css';
 
 const Users = () => {
   const [users, setUsers] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     fetchUsers();
@@ -31,55 +33,81 @@ const Users = () => {
     }
   };
 
+  const filteredUsers = users.filter(user =>
+    user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (user.is_superuser ? 'admin' : user.is_staff ? 'staff' : 'user').includes(searchTerm.toLowerCase())
+  );
+
   return (
-    <div className="container mt-4">
-      <h2>👥 Users</h2>
-      {users.length === 0 ? (
-        <p>No users found.</p>
+    <div className="container-fluid mt-4">
+      <h2 className="mb-3">👥 Users</h2>
+
+      {/* Search Bar */}
+      <div className="mb-3 d-flex flex-wrap gap-2">
+        <input
+          type="text"
+          className="form-control"
+          placeholder="🔍 Search by username, email, or role"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        {searchTerm && (
+          <button className="btn btn-outline-secondary" onClick={() => setSearchTerm('')}>
+            ❌ Clear
+          </button>
+        )}
+      </div>
+
+      {/* Users Table */}
+      {filteredUsers.length === 0 ? (
+        <div className="alert alert-warning">No users match your search.</div>
       ) : (
-        <table className="table table-bordered table-hover">
-          <thead className="table-dark">
-            <tr>
-              <th>#</th>
-              <th>Username</th>
-              <th>Email</th>
-              <th>Role</th>
-              <th>Status</th>
-              <th>Joined</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map((user, index) => (
-              <tr key={user.id || index}>
-                <td>{index + 1}</td>
-                <td>{user.username}</td>
-                <td>{user.email}</td>
-                <td>
-                  {user.is_superuser
-                    ? 'Admin'
-                    : user.is_staff
-                    ? 'Staff'
-                    : 'User'}
-                </td>
-                <td>
-                  <span className={`badge ${user.is_active ? 'bg-success' : 'bg-danger'}`}>
-                    {user.is_active ? 'Active' : 'Inactive'}
-                  </span>
-                </td>
-                <td>{new Date(user.date_joined).toLocaleDateString()}</td>
-                <td>
-                  <button
-                    className={`btn btn-sm ${user.is_active ? 'btn-outline-danger' : 'btn-outline-success'}`}
-                    onClick={() => toggleActivation(user.id, user.is_active)}
-                  >
-                    {user.is_active ? 'Deactivate' : 'Activate'}
-                  </button>
-                </td>
+        <div className="table-responsive">
+          <table className="table table-bordered table-hover">
+            <thead className="table-dark">
+              <tr>
+                <th>#</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Joined</th>
+                <th>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {filteredUsers.map((user, index) => (
+                <tr key={user.id || index}>
+                  <td>{index + 1}</td>
+                  <td>{user.username}</td>
+                  <td>{user.email}</td>
+                  <td>
+                    {user.is_superuser
+                      ? 'Admin'
+                      : user.is_staff
+                      ? 'Staff'
+                      : 'User'}
+                  </td>
+                  <td>
+                    <span className={`badge ${user.is_active ? 'bg-success' : 'bg-danger'}`}>
+                      {user.is_active ? 'Active' : 'Inactive'}
+                    </span>
+                  </td>
+                  <td>{new Date(user.date_joined).toLocaleDateString()}</td>
+                  <td>
+                    <button
+                      className={`btn btn-sm ${user.is_active ? 'btn-outline-danger' : 'btn-outline-success'}`}
+                      onClick={() => toggleActivation(user.id, user.is_active)}
+                    >
+                      {user.is_active ? 'Deactivate' : 'Activate'}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );

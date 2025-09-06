@@ -37,6 +37,16 @@ const Overview = () => {
     }).format(amount);
   };
 
+  const cardClasses = {
+    'Total Products': 'card-products',
+    'Total Users': 'card-users',
+    'Total Sales': 'card-sales',
+    'Total Purchases': 'card-purchases',
+    'Total Expenses': 'card-expenses',
+    'Net Profit': 'card-profit',
+    'Total Product Value': 'card-inventory',
+  };
+
   if (loading || !stats) {
     return <div className="text-white">Loading overview...</div>;
   }
@@ -45,6 +55,7 @@ const Overview = () => {
 
   return (
     <div className={`overview-container theme-${theme}`}>
+      {/* Header and Theme Toggle */}
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2 className={theme === 'dark' ? 'text-white' : ''}>📊 System Overview</h2>
         <button className="btn btn-outline-light" onClick={toggleTheme}>
@@ -52,65 +63,29 @@ const Overview = () => {
         </button>
       </div>
 
+      {/* Stats Cards */}
       <div className="row mb-4">
-        <div className="col-md-4 mb-3">
-          <div className="card card-products">
-            <div className="card-body">
-              <h5>Total Products</h5>
-              <p>{stats.total_products ?? '—'}</p>
+        {[
+          { label: 'Total Products', value: stats.total_products },
+          { label: 'Total Users', value: stats.total_users },
+          { label: 'Total Sales', value: formatTZS(stats.total_sales) },
+          { label: 'Total Purchases', value: formatTZS(stats.total_purchases) },
+          { label: 'Total Expenses', value: formatTZS(stats.total_expenses) },
+          { label: 'Net Profit', value: formatTZS(stats.net_profit), className: profitColor },
+          { label: 'Total Product Value', value: formatTZS(stats.total_product_price) },
+        ].map((item, idx) => (
+          <div key={idx} className="col-md-4 mb-3">
+            <div className={`card ${cardClasses[item.label] || ''}`}>
+              <div className="card-body">
+                <h5>{item.label}</h5>
+                <p className={item.className || ''}>{item.value ?? '—'}</p>
+              </div>
             </div>
           </div>
-        </div>
-        <div className="col-md-4 mb-3">
-          <div className="card card-users">
-            <div className="card-body">
-              <h5>Total Users</h5>
-              <p>{stats.total_users ?? '—'}</p>
-            </div>
-          </div>
-        </div>
-        <div className="col-md-4 mb-3">
-          <div className="card card-sales">
-            <div className="card-body">
-              <h5>Total Sales</h5>
-              <p>{formatTZS(stats.total_sales)}</p>
-            </div>
-          </div>
-        </div>
-        <div className="col-md-4 mb-3">
-          <div className="card card-purchases">
-            <div className="card-body">
-              <h5>Total Purchases</h5>
-              <p>{formatTZS(stats.total_purchases)}</p>
-            </div>
-          </div>
-        </div>
-        <div className="col-md-4 mb-3">
-          <div className="card card-expenses">
-            <div className="card-body">
-              <h5>Total Expenses</h5>
-              <p>{formatTZS(stats.total_expenses)}</p>
-            </div>
-          </div>
-        </div>
-        <div className="col-md-4 mb-3">
-          <div className="card card-profit">
-            <div className="card-body">
-              <h5>Net Profit</h5>
-              <p className={profitColor}>{formatTZS(stats.net_profit)}</p>
-            </div>
-          </div>
-        </div>
-        <div className="col-md-4 mb-3">
-          <div className="card card-inventory">
-            <div className="card-body">
-              <h5>Total Product Value</h5>
-              <p>{formatTZS(stats.total_product_price)}</p>
-            </div>
-          </div>
-        </div>
+        ))}
       </div>
 
+      {/* Recent Activity */}
       <h4 className={theme === 'dark' ? 'text-white' : ''}>🕒 Recent Activity</h4>
       <ul className="list-group mb-4">
         {recent.length > 0 ? (
@@ -124,6 +99,7 @@ const Overview = () => {
         )}
       </ul>
 
+      {/* Navigation Buttons */}
       <div className="btn-group">
         <NavLink to="/products" className="btn btn-outline-light">Manage Products</NavLink>
         <NavLink to="/users" className="btn btn-outline-light">Manage Users</NavLink>

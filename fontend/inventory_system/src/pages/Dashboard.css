@@ -1,0 +1,50 @@
+.dashboard-wrapper {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Sidebar overlay for mobile */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 998;
+}
+
+/* Main content */
+.main-content {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  transition: margin-left 0.3s ease, width 0.3s ease;
+  min-height: 100vh;
+  z-index: 1;
+}
+
+.main-content.expanded {
+  margin-left: 250px;
+  width: calc(100vw - 250px);
+}
+
+.main-content.collapsed {
+  margin-left: 85px;
+  width: calc(100vw - 85px);
+}
+
+.content-area {
+  flex: 1;
+  padding: 20px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0;
+    width: 100vw;
+  }
+}

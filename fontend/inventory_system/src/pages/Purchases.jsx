@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import api from '../api';
 import { toast } from 'react-toastify';
+import './Purchases.css';
 
 const Purchases = () => {
   const [purchases, setPurchases] = useState([]);
@@ -121,11 +122,11 @@ const Purchases = () => {
   );
 
   return (
-    <div className="container mt-4">
+    <div className="container-fluid mt-4">
       <h2 className="mb-3">📥 Purchases</h2>
 
       {/* Search Bar */}
-      <div className="mb-3 d-flex gap-2">
+      <div className="mb-3 d-flex flex-wrap gap-2">
         <input
           type="text"
           className="form-control"
@@ -144,7 +145,7 @@ const Purchases = () => {
       <div className="card p-3 mb-4">
         <h4>Add New Purchase</h4>
         <div className="row g-2">
-          <div className="col-md-4">
+          <div className="col-md-4 col-sm-6">
             <label className="form-label">Product</label>
             <select
               className="form-select"
@@ -161,7 +162,7 @@ const Purchases = () => {
             </select>
           </div>
           {selectedProduct && (
-            <div className="col-md-12">
+            <div className="col-12">
               <p><strong>Current Buying Price:</strong> {formatTZS(selectedProduct.buying_price)}</p>
               {selectedProduct.quantity > 1 && (
                 <div className="alert alert-warning mt-2">
@@ -170,7 +171,7 @@ const Purchases = () => {
               )}
             </div>
           )}
-          <div className="col-md-4">
+          <div className="col-md-4 col-sm-6">
             <input
               type="number"
               className="form-control"
@@ -180,7 +181,7 @@ const Purchases = () => {
               onChange={handleInputChange}
             />
           </div>
-          <div className="col-md-4">
+          <div className="col-md-4 col-sm-6">
             <input
               type="number"
               className="form-control"
@@ -190,7 +191,7 @@ const Purchases = () => {
               onChange={handleInputChange}
             />
           </div>
-          <div className="col-md-3 mt-3">
+          <div className="col-md-3 col-sm-6 mt-3">
             <button
               className="btn btn-success w-100"
               onClick={handleCreatePurchase}
@@ -206,37 +207,39 @@ const Purchases = () => {
       {filteredPurchases.length === 0 ? (
         <div className="alert alert-warning">No purchases match your search.</div>
       ) : (
-        <table className="table table-bordered table-hover">
-          <thead className="table-dark">
-            <tr>
-              <th>#</th>
-              <th>Product</th>
-              <th>Quantity</th>
-              <th>Unit Price</th>
-              <th>Total Cost</th>
-              <th>Purchased By</th>
-              <th>Date</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredPurchases.map((purchase, index) => (
-              <tr key={purchase.id}>
-                <td>{index + 1}</td>
-                <td>{purchase.product_name}</td>
-                <td>{purchase.quantity}</td>
-                <td>{formatTZS(purchase.price_per_unit)}</td>
-                <td>{formatTZS(purchase.amount)}</td>
-                <td>{purchase.purchased_by_username || '—'}</td>
-                <td>{new Date(purchase.purchased_at).toLocaleString()}</td>
-                <td>
-                  <button className="btn btn-sm btn-warning me-2" onClick={() => handleEdit(purchase)}>Edit</button>
-                  <button className="btn btn-sm btn-danger" onClick={() => handleDelete(purchase.id)}>Delete</button>
-                </td>
+        <div className="table-responsive">
+          <table className="table table-bordered table-hover">
+            <thead className="table-dark">
+              <tr>
+                <th>#</th>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Unit Price</th>
+                <th>Total Cost</th>
+                <th>Purchased By</th>
+                <th>Date</th>
+                <th>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {filteredPurchases.map((purchase, index) => (
+                <tr key={purchase.id}>
+                  <td>{index + 1}</td>
+                  <td>{purchase.product_name}</td>
+                  <td>{purchase.quantity}</td>
+                  <td>{formatTZS(purchase.price_per_unit)}</td>
+                  <td>{formatTZS(purchase.amount)}</td>
+                  <td>{purchase.purchased_by_username || '—'}</td>
+                  <td>{new Date(purchase.purchased_at).toLocaleString()}</td>
+                  <td>
+                    <button className="btn btn-sm btn-warning me-2" onClick={() => handleEdit(purchase)}>Edit</button>
+                                        <button className="btn btn-sm btn-danger" onClick={() => handleDelete(purchase.id)}>Delete</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
 
       {/* Edit Purchase Form */}
@@ -244,7 +247,23 @@ const Purchases = () => {
         <div className="card p-3 mt-4">
           <h4>Edit Purchase</h4>
           <div className="row g-2">
-                        <div className="col-md-4">
+            <div className="col-md-4 col-sm-6">
+              <label className="form-label">Product</label>
+              <select
+                className="form-select"
+                name="product"
+                value={editPurchase.product}
+                onChange={handleInputChange}
+              >
+                <option value="">Select Product</option>
+                {products.map(product => (
+                  <option key={product.id} value={product.id}>
+                    {product.name} ({product.quantity} in stock)
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="col-md-4 col-sm-6">
               <input
                 type="number"
                 className="form-control"
@@ -254,7 +273,7 @@ const Purchases = () => {
                 onChange={handleInputChange}
               />
             </div>
-            <div className="col-md-4">
+            <div className="col-md-4 col-sm-6">
               <input
                 type="number"
                 className="form-control"
@@ -264,7 +283,7 @@ const Purchases = () => {
                 onChange={handleInputChange}
               />
             </div>
-            <div className="col-md-3 mt-3 d-flex">
+            <div className="col-md-3 col-sm-6 mt-3 d-flex">
               <button className="btn btn-primary w-100 me-2" onClick={handleUpdatePurchase}>💾 Save</button>
               <button className="btn btn-secondary w-100" onClick={() => setEditPurchase(null)}>❌ Cancel</button>
             </div>

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import api from '../api';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import './Product.css'; // optional for custom styles
 
 const Products = () => {
   const [products, setProducts] = useState([]);
@@ -89,11 +90,11 @@ const Products = () => {
   );
 
   return (
-    <div className="container mt-4">
+    <div className="container-fluid mt-4">
       <h2 className="mb-3">📦 Products</h2>
 
       {/* Search Bar */}
-      <div className="mb-3 d-flex gap-2">
+      <div className="mb-3 d-flex flex-wrap gap-2">
         <input
           type="text"
           className="form-control"
@@ -113,7 +114,7 @@ const Products = () => {
         <h4>Add New Product</h4>
         <div className="row g-2">
           {['name', 'description', 'category', 'buying_price', 'selling_price', 'quantity'].map((field) => (
-            <div className="col-md-4" key={field}>
+            <div className="col-md-4 col-sm-6" key={field}>
               <input
                 type={['buying_price', 'selling_price', 'quantity'].includes(field) ? 'number' : 'text'}
                 className="form-control"
@@ -124,7 +125,7 @@ const Products = () => {
               />
             </div>
           ))}
-          <div className="col-md-2">
+          <div className="col-md-2 col-sm-6">
             <button className="btn btn-success w-100" onClick={handleCreateProduct}>
               ➕ Add
             </button>
@@ -136,41 +137,43 @@ const Products = () => {
       {filteredProducts.length === 0 ? (
         <p>No products match your search.</p>
       ) : (
-        <table className="table table-striped table-hover">
-          <thead className="table-dark">
-            <tr>
-              <th>#</th>
-              <th>Name</th>
-              <th>Description</th>
-              <th>Category</th>
-              <th>Buying Price</th>
-              <th>Selling Price</th>
-              <th>Quantity</th>
-              <th>Total Value</th>
-              <th>Created At</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredProducts.map((product, index) => (
-              <tr key={product.id}>
-                <td>{index + 1}</td>
-                <td>{product.name}</td>
-                <td>{product.description}</td>
-                <td>{product.category}</td>
-                <td>{formatTZS(product.buying_price)}</td>
-                <td>{formatTZS(product.selling_price)}</td>
-                <td>{renderQuantityStatus(product)}</td>
-                <td>{formatTZS(product.total_value)}</td>
-                <td>{new Date(product.created_at).toLocaleString()}</td>
-                <td>
-                  <button className="btn btn-sm btn-warning me-2" onClick={() => handleEdit(product)}>Edit</button>
-                  <button className="btn btn-sm btn-danger" onClick={() => handleDelete(product.id)}>Delete</button>
-                </td>
+        <div className="table-responsive">
+          <table className="table table-striped table-hover">
+            <thead className="table-dark">
+              <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Category</th>
+                <th>Buying Price</th>
+                <th>Selling Price</th>
+                <th>Quantity</th>
+                <th>Total Value</th>
+                <th>Created At</th>
+                <th>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {filteredProducts.map((product, index) => (
+                <tr key={product.id}>
+                  <td>{index + 1}</td>
+                  <td>{product.name}</td>
+                  <td>{product.description}</td>
+                  <td>{product.category}</td>
+                  <td>{formatTZS(product.buying_price)}</td>
+                  <td>{formatTZS(product.selling_price)}</td>
+                  <td>{renderQuantityStatus(product)}</td>
+                  <td>{formatTZS(product.total_value)}</td>
+                  <td>{new Date(product.created_at).toLocaleString()}</td>
+                  <td>
+                    <button className="btn btn-sm btn-warning me-2" onClick={() => handleEdit(product)}>Edit</button>
+                    <button className="btn btn-sm btn-danger" onClick={() => handleDelete(product.id)}>Delete</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
 
       {/* Edit Product Form */}
@@ -179,7 +182,7 @@ const Products = () => {
           <h4>Edit Product</h4>
           <div className="row g-2">
             {['name', 'description', 'category', 'buying_price', 'selling_price', 'quantity'].map((field) => (
-              <div className="col-md-4" key={field}>
+              <div className="col-md-4 col-sm-6" key={field}>
                 <input
                   type={['buying_price', 'selling_price', 'quantity'].includes(field) ? 'number' : 'text'}
                   className="form-control"
@@ -190,7 +193,7 @@ const Products = () => {
                 />
               </div>
             ))}
-            <div className="col-md-2 d-flex">
+            <div className="col-md-2 col-sm-6 d-flex">
               <button className="btn btn-primary me-2 w-100" onClick={handleUpdateProduct}>💾 Save</button>
               <button className="btn btn-secondary w-100" onClick={() => setEditProduct(null)}>❌ Cancel</button>
             </div>

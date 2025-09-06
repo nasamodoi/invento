@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import TopBar from '../components/TopBar';
 import { Outlet } from 'react-router-dom';
+import './Dashboard.css';
 
 const Dashboard = () => {
   const [collapsed, setCollapsed] = useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   const currentUser = {
     username: 'adminUser',
@@ -12,26 +14,24 @@ const Dashboard = () => {
   };
 
   return (
-    <div style={{ display: 'flex' }}>
-      {/* Sidebar is fixed via CSS and sends collapse state */}
-      <Sidebar onCollapseChange={setCollapsed} />
+    <div className="dashboard-wrapper">
+      {/* Sidebar */}
+      <Sidebar
+        onCollapseChange={setCollapsed}
+        mobileOpen={mobileSidebarOpen}
+        onMobileClose={() => setMobileSidebarOpen(false)}
+      />
 
-      {/* Main content area scrolls independently and adjusts width */}
-      <div
-  className="main-content"
-  style={{
-    marginLeft: collapsed ? '85px' : '250px',
-    width: collapsed ? 'calc(100vw - 85px)' : 'calc(100vw - 250px)', // ✅ fix width
-    height: '100vh',
-    overflowY: 'auto',
-    display: 'flex',
-    flexDirection: 'column',
-    transition: 'margin-left 0.3s ease, width 0.3s ease',
-  }}
->
-        <TopBar currentUser={currentUser} />
+      {/* Overlay for mobile sidebar */}
+      {mobileSidebarOpen && <div className="overlay" onClick={() => setMobileSidebarOpen(false)} />}
 
-        <div style={{ flex: 1, padding: '20px' }}>
+      {/* Main Content */}
+      <div className={`main-content ${collapsed ? 'collapsed' : 'expanded'}`}>
+        <TopBar
+          currentUser={currentUser}
+          onBurgerClick={() => setMobileSidebarOpen(true)}
+        />
+        <div className="content-area">
           <Outlet />
         </div>
       </div>

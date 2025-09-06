@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import api from '../api';
+import './Expenses.css';
 
 const Expenses = () => {
   const [expenses, setExpenses] = useState([]);
-  const [newExpense, setNewExpense] = useState({
-    description: '', amount: ''
-  });
+  const [newExpense, setNewExpense] = useState({ description: '', amount: '' });
   const [editExpense, setEditExpense] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     fetchExpenses();
@@ -75,15 +75,37 @@ const Expenses = () => {
     }).format(amount);
   };
 
+  const filteredExpenses = expenses.filter(e =>
+    e.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (e.spent_by_username || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    new Date(e.spent_at).toLocaleString().toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
-    <div className="container mt-4">
+    <div className="container-fluid mt-4">
       <h2 className="mb-3">💸 Expenses</h2>
+
+      {/* Search Bar */}
+      <div className="mb-3 d-flex flex-wrap gap-2">
+        <input
+          type="text"
+          className="form-control"
+          placeholder="🔍 Search by description, user, or date"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        {searchTerm && (
+          <button className="btn btn-outline-secondary" onClick={() => setSearchTerm('')}>
+            ❌ Clear
+          </button>
+        )}
+      </div>
 
       {/* Add New Expense Form */}
       <div className="card p-3 mb-4">
         <h4>Add New Expense</h4>
         <div className="row g-2">
-          <div className="col-md-6">
+          <div className="col-md-6 col-sm-6">
             <input
               type="text"
               className="form-control"
@@ -93,7 +115,7 @@ const Expenses = () => {
               onChange={handleInputChange}
             />
           </div>
-          <div className="col-md-6">
+          <div className="col-md-6 col-sm-6">
             <input
               type="number"
               className="form-control"
@@ -103,7 +125,7 @@ const Expenses = () => {
               onChange={handleInputChange}
             />
           </div>
-          <div className="col-md-3 mt-3">
+          <div className="col-md-3 col-sm-6 mt-3">
             <button className="btn btn-success w-100" onClick={handleCreateExpense}>
               ➕ Add Expense
             </button>
@@ -112,36 +134,38 @@ const Expenses = () => {
       </div>
 
       {/* Expenses Table */}
-      {expenses.length === 0 ? (
-        <div className="alert alert-warning">No expenses recorded yet.</div>
+      {filteredExpenses.length === 0 ? (
+        <div className="alert alert-warning">No expenses match your search.</div>
       ) : (
-        <table className="table table-bordered table-hover">
-          <thead className="table-dark">
-            <tr>
-              <th>#</th>
-              <th>Description</th>
-              <th>Amount</th>
-              <th>Spent By</th>
-              <th>Date</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {expenses.map((expense, index) => (
-              <tr key={expense.id}>
-                <td>{index + 1}</td>
-                <td>{expense.description}</td>
-                <td>{formatTZS(expense.amount)}</td>
-                <td>{expense.spent_by_username || '—'}</td>
-                <td>{new Date(expense.spent_at).toLocaleString()}</td>
-                <td>
-                  <button className="btn btn-sm btn-warning me-2" onClick={() => handleEdit(expense)}>Edit</button>
-                  <button className="btn btn-sm btn-danger" onClick={() => handleDelete(expense.id)}>Delete</button>
-                </td>
+        <div className="table-responsive">
+          <table className="table table-bordered table-hover">
+            <thead className="table-dark">
+              <tr>
+                <th>#</th>
+                <th>Description</th>
+                <th>Amount</th>
+                <th>Spent By</th>
+                <th>Date</th>
+                <th>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {filteredExpenses.map((expense, index) => (
+                <tr key={expense.id}>
+                  <td>{index + 1}</td>
+                  <td>{expense.description}</td>
+                  <td>{formatTZS(expense.amount)}</td>
+                  <td>{expense.spent_by_username || '—'}</td>
+                  <td>{new Date(expense.spent_at).toLocaleString()}</td>
+                  <td>
+                    <button className="btn btn-sm btn-warning me-2" onClick={() => handleEdit(expense)}>Edit</button>
+                    <button className="btn btn-sm btn-danger" onClick={() => handleDelete(expense.id)}>Delete</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
 
       {/* Edit Expense Form */}
@@ -149,7 +173,7 @@ const Expenses = () => {
         <div className="card p-3 mt-4">
           <h4>Edit Expense</h4>
           <div className="row g-2">
-            <div className="col-md-6">
+            <div className="col-md-6 col-sm-6">
               <input
                 type="text"
                 className="form-control"
@@ -159,7 +183,7 @@ const Expenses = () => {
                 onChange={handleInputChange}
               />
             </div>
-            <div className="col-md-6">
+            <div className="col-md-6 col-sm-6">
               <input
                 type="number"
                 className="form-control"
@@ -169,7 +193,7 @@ const Expenses = () => {
                 onChange={handleInputChange}
               />
             </div>
-            <div className="col-md-3 mt-3 d-flex">
+            <div className="col-md-3 col-sm-6 mt-3 d-flex">
               <button className="btn btn-primary w-100 me-2" onClick={handleUpdateExpense}>💾 Save</button>
               <button className="btn btn-secondary w-100" onClick={() => setEditExpense(null)}>❌ Cancel</button>
             </div>
