@@ -51,7 +51,7 @@
 }
 .sidebar {
   transition: width 0.3s ease;
-  box-shadow: aquamarine;
+  box-shadow: rgb(68, 221, 170);
   background-color: color-mix(in xyz-d50, color 50%, color 60%);
 }
 
@@ -79,4 +79,11 @@
 }
 .color-empty {
   fill: #e0e0e0;
+}
+
+.main-content {
+  margin-left: 250px;
+  height: 100vh;
+  overflow-y: auto;
+  padding: 20px;
 }

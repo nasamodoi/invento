@@ -37,7 +37,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 # ---------------------
 class ProductSerializer(serializers.ModelSerializer):
     low_stock = serializers.SerializerMethodField()
-    total_value = serializers.SerializerMethodField()  # ✅ total product value (buying_price × quantity)
+    total_value = serializers.SerializerMethodField()
 
     class Meta:
         model = Product
@@ -50,7 +50,7 @@ class ProductSerializer(serializers.ModelSerializer):
         return obj.buying_price * obj.quantity
 
 # ---------------------
-# Purchase Serializer
+# Purchase Serializer (block if stock is sufficient)
 # ---------------------
 class PurchaseSerializer(serializers.ModelSerializer):
     product_name = serializers.CharField(source='product.name', read_only=True)
@@ -59,6 +59,14 @@ class PurchaseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Purchase
         fields = '__all__'
+
+    def validate(self, data):
+        product = data['product']
+        if product.quantity > 1:
+            raise serializers.ValidationError({
+                'product': f"Cannot purchase: '{product.name}' has sufficient stock ({product.quantity})"
+            })
+        return data
 
     def validate_quantity(self, value):
         if value <= 0:
@@ -70,27 +78,29 @@ class PurchaseSerializer(serializers.ModelSerializer):
         quantity = validated_data['quantity']
 
         product.quantity += quantity
+        product.buying_price = validated_data['price_per_unit']
         product.save()
 
         return super().create(validated_data)
 
 # ---------------------
-# Sale Serializer (with buying price reference)
+# Sale Serializer (with selling price reference)
 # ---------------------
 class SaleSerializer(serializers.ModelSerializer):
     product_name = serializers.CharField(source='product.name', read_only=True)
     sold_by_username = serializers.CharField(source='sold_by.username', read_only=True)
     amount = serializers.SerializerMethodField()
-    buying_price = serializers.DecimalField(
-    source='product.buying_price',
-    max_digits=10,
-    decimal_places=2,
-    read_only=True
-)
+    selling_price = serializers.DecimalField(
+        source='product.selling_price',
+        max_digits=10,
+        decimal_places=2,
+        read_only=True
+    )
+
     class Meta:
         model = Sale
         fields = [
-            'id', 'product', 'product_name', 'buying_price',
+            'id', 'product', 'product_name', 'selling_price',
             'quantity', 'price_per_unit', 'amount',
             'sold_by', 'sold_by_username', 'sold_at'
         ]
@@ -129,7 +139,7 @@ class ExpenseSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 # ---------------------
-# Report Serializer (with total product price)
+# Report Serializer (overview-ready)
 # ---------------------
 class ReportSerializer(serializers.ModelSerializer):
     generated_by_username = serializers.CharField(source='generated_by.username', read_only=True)
@@ -139,7 +149,7 @@ class ReportSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'generated_by', 'generated_by_username', 'generated_at',
             'notes', 'total_sales', 'total_purchases',
-            'total_expenses', 'net_profit', 'total_product_price'  # ✅ added field
+            'total_expenses', 'net_profit', 'total_product_price'
         ]
 
 # ---------------------

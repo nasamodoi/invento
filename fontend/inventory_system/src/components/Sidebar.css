@@ -1,19 +1,30 @@
 /* Sidebar.css */
 
-/* ✅ Light green backgrounds for sidebar */
-.sidebar-expanded {
-  background-color: #d4edda; /* light green */
+/* ✅ Fixed sidebar layout */
+#sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 250px;
+  z-index: 1000;
+  overflow-y: auto;
+  background-color: #a4ccae;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
 }
 
+/* ✅ Light green backgrounds for sidebar */
+.sidebar-expanded {
+  background-color: #c0f14e;
+}
+
 .sidebar-collapsed {
-  background-color: #d4edda; /* same light green for consistency */
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  background-color: #36533d;
 }
 
 .sidebar-expanded h5 {
   font-weight: bold;
-  color: #343a40;
+  color: #0c831c;
 }
 
 /* Navigation links */
@@ -28,12 +39,12 @@
 }
 
 .nav-link:hover {
-  background-color: #c3e6cb; /* soft green hover */
+  background-color: #c3e6cb;
   color: #212529;
 }
 
 .nav-link.active {
-  background-color: #28a745; /* Bootstrap green */
+  background-color: #28a745;
   color: #fff !important;
 }
 
@@ -92,7 +103,7 @@ button:hover svg {
   width: 44px;
   height: 44px;
   padding: 0;
-  display: none; /* default hidden; shown via media query below */
+  display: none;
 }
 
 /* Drawer and backdrop for tiny screens */
@@ -122,7 +133,6 @@ button:hover svg {
   box-shadow: 0 10px 30px rgba(0,0,0,0.2);
 }
 
-/* Open state slides in */
 .sidebar-drawer.open {
   transform: translateX(0);
 }
@@ -142,7 +152,7 @@ button:hover svg {
 }
 
 .sidebar-toggle:focus, .tiny-toggle-floating:focus, .nav-link:focus {
-  outline: 2px solid #198754; /* bootstrap success color */
+  outline: 2px solid #198754;
   outline-offset: 2px;
 }
 

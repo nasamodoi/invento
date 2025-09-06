@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.core.exceptions import ValidationError
 
 # ---------------------
 # Custom User Model
@@ -33,6 +34,8 @@ class Product(models.Model):
 # ---------------------
 # Purchase
 # ---------------------
+
+
 class Purchase(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
@@ -42,11 +45,20 @@ class Purchase(models.Model):
     amount = models.DecimalField(max_digits=12, decimal_places=2, blank=True, default=0)
 
     def save(self, *args, **kwargs):
+        # ✅ Block purchase if product stock is sufficient
+        if self.product.quantity > 1:
+            raise ValidationError("Cannot purchase: product stock is sufficient")
+
         self.amount = self.price_per_unit * self.quantity
-        # ✅ Update product buying price if changed
+
+        # ✅ Update buying price if changed
         if self.product.buying_price != self.price_per_unit:
             self.product.buying_price = self.price_per_unit
-            self.product.save()
+
+        # ✅ Increase product quantity
+        self.product.quantity += self.quantity
+        self.product.save()
+
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -94,16 +106,49 @@ class Report(models.Model):
     total_purchases = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     total_expenses = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     net_profit = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-    total_product_price = models.DecimalField(max_digits=12, decimal_places=2, default=0)  # ✅ new field
+    total_product_price = models.DecimalField(max_digits=12, decimal_places=2, default=0)
 
     def __str__(self):
         return f"Report {self.id} - {self.generated_at.strftime('%Y-%m-%d')}"
+
+    def calculate_total_sales_and_profit(self):
+        from .models import Sale, Product
+        sales = Sale.objects.all()
+        total_sales = sum([s.amount for s in sales])
+        total_cost = sum([
+            s.quantity * Product.objects.get(id=s.product.id).buying_price
+            for s in sales
+        ])
+        profit = total_sales - total_cost
+        self.total_sales = total_sales
+        self.net_profit = profit
+        self.save()
+
+    def calculate_total_purchases(self):
+        from .models import Purchase
+        purchases = Purchase.objects.all()
+        total = sum([p.amount for p in purchases])
+        self.total_purchases = total
+        self.save()
+
+    def calculate_total_expenses(self):
+        from .models import Expense
+        expenses = Expense.objects.all()
+        total = sum([e.amount for e in expenses])
+        self.total_expenses = total
+        self.save()
 
     def calculate_total_product_price(self):
         from .models import Product
         total = sum([p.total_value for p in Product.objects.all()])
         self.total_product_price = total
         self.save()
+
+    def generate_all_metrics(self):
+        self.calculate_total_sales_and_profit()
+        self.calculate_total_purchases()
+        self.calculate_total_expenses()
+        self.calculate_total_product_price()
 
         # Setting
 # ---------------------

@@ -11,8 +11,8 @@ from .serializers import (
     ReportSerializer, SettingSerializer
 )
 from django.http import HttpResponse
-from reportlab.lib.pagesizes import A4  # pyright: ignore[reportMissingModuleSource]
-from reportlab.pdfgen import canvas  # pyright: ignore[reportMissingModuleSource]
+from reportlab.lib.pagesizes import A4 # pyright: ignore[reportMissingModuleSource]
+from reportlab.pdfgen import canvas # pyright: ignore[reportMissingModuleSource]
 from io import BytesIO
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
@@ -70,11 +70,8 @@ class PurchaseViewSet(viewsets.ModelViewSet):
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         product = instance.product
-
-        # ✅ Revert stock safely before deleting purchase
         product.quantity = max(product.quantity - instance.quantity, 0)
         product.save()
-
         return super().destroy(request, *args, **kwargs)
 
 # ---------------------
@@ -91,11 +88,8 @@ class SaleViewSet(viewsets.ModelViewSet):
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         product = instance.product
-
-        # ✅ Revert stock safely before deleting sale
         product.quantity = max(product.quantity + instance.quantity, 0)
         product.save()
-
         return super().destroy(request, *args, **kwargs)
 
 # ---------------------
@@ -125,32 +119,12 @@ class ReportViewSet(viewsets.ModelViewSet):
         return queryset
 
     def perform_create(self, serializer):
-        total_sales = Sale.objects.aggregate(Sum('amount'))['amount__sum'] or 0
-        total_purchases = Purchase.objects.aggregate(Sum('amount'))['amount__sum'] or 0
-        total_expenses = Expense.objects.aggregate(Sum('amount'))['amount__sum'] or 0
-        net_profit = total_sales - total_purchases - total_expenses
-
-        average_sale = Sale.objects.aggregate(Avg('amount'))['amount__avg'] or 0
-        highest_expense = Expense.objects.aggregate(Max('amount'))['amount__max'] or 0
-
-        total_product_price = Product.objects.aggregate(
-            total=Sum(F('buying_price') * F('quantity'))
-        )['total'] or 0
-
-        serializer.save(
-            generated_by=self.request.user,
-            total_sales=total_sales,
-            total_purchases=total_purchases,
-            total_expenses=total_expenses,
-            net_profit=net_profit,
-            total_product_price=total_product_price,
-            notes=f"Average Sale: TSh {average_sale:,.2f}, Highest Expense: TSh {highest_expense:,.2f}"
-        )
+        report = serializer.save(generated_by=self.request.user)
+        report.generate_all_metrics()
 
     @action(detail=True, methods=['get'], permission_classes=[IsAdminUser])
     def export_pdf(self, request, pk=None):
         report = self.get_object()
-
         buffer = BytesIO()
         p = canvas.Canvas(buffer, pagesize=A4)
         width, height = A4
@@ -167,7 +141,7 @@ class ReportViewSet(viewsets.ModelViewSet):
         p.drawString(50, y - 20, f"Total Purchases: TSh {report.total_purchases:,.2f}")
         p.drawString(50, y - 40, f"Total Expenses: TSh {report.total_expenses:,.2f}")
         p.drawString(50, y - 60, f"Net Profit: TSh {report.net_profit:,.2f}")
-        p.drawString(50, y - 80, f"Total Product Value: TSh {report.total_product_price:,.2f}")  # ✅ Added line
+        p.drawString(50, y - 80, f"Total Product Value: TSh {report.total_product_price:,.2f}")
 
         p.drawString(50, y - 120, "Notes:")
         text_obj = p.beginText(50, y - 140)
@@ -178,7 +152,6 @@ class ReportViewSet(viewsets.ModelViewSet):
 
         p.showPage()
         p.save()
-
         buffer.seek(0)
         return HttpResponse(buffer, content_type='application/pdf')
 
@@ -196,21 +169,22 @@ class SettingViewSet(viewsets.ModelViewSet):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def overview(request):
+    total_sales = Sale.objects.aggregate(total=Sum('amount'))['total'] or 0
+    total_purchases = Purchase.objects.aggregate(total=Sum('amount'))['total'] or 0
+    total_expenses = Expense.objects.aggregate(total=Sum('amount'))['total'] or 0
+    net_profit = total_sales - total_purchases - total_expenses
+    total_product_price = Product.objects.aggregate(
+        total=Sum(F('buying_price') * F('quantity'))
+    )['total'] or 0
+
     stats = {
         'total_products': Product.objects.count(),
         'total_users': User.objects.count(),
-        'total_sales': Sale.objects.aggregate(total=Sum('amount'))['total'] or 0,
-        'total_purchases': Purchase.objects.aggregate(total=Sum('amount'))['total'] or 0,
-        'total_expenses': Expense.objects.aggregate(total=Sum('amount'))['total'] or 0,
-        'net_profit': (
-            Sale.objects.aggregate(total=Sum('amount'))['total'] or 0
-        ) - (
-            Purchase.objects.aggregate(total=Sum('amount'))['total'] or 0 +
-            Expense.objects.aggregate(total=Sum('amount'))['total'] or 0
-        ),
-        'total_product_price': Product.objects.aggregate(
-            total=Sum(F('buying_price') * F('quantity'))
-        )['total'] or 0
+        'total_sales': total_sales,
+        'total_purchases': total_purchases,
+        'total_expenses': total_expenses,
+        'net_profit': net_profit,
+        'total_product_price': total_product_price
     }
 
     recent_sales = Sale.objects.order_by('-sold_at')[:2]

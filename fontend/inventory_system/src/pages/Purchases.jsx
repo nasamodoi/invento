@@ -52,12 +52,17 @@ const Purchases = () => {
         return;
       }
 
+      if (selectedProduct && selectedProduct.quantity > 1) {
+        toast.warning(`🚫 Cannot purchase: '${selectedProduct.name}' has sufficient stock (${selectedProduct.quantity})`);
+        return;
+      }
+
       const payload = { product, quantity, price_per_unit };
       const response = await api.post('purchases/', payload);
       setPurchases([...purchases, response.data]);
       setNewPurchase({ product: '', quantity: '', price_per_unit: '' });
       setSelectedProduct(null);
-      await fetchProducts(); // ✅ Refresh stock
+      await fetchProducts();
       toast.success('✅ Purchase recorded');
     } catch (error) {
       console.error('Failed to create purchase:', error.response?.data || error.message);
@@ -82,7 +87,7 @@ const Purchases = () => {
       setPurchases(purchases.map(p => (p.id === editPurchase.id ? response.data : p)));
       setEditPurchase(null);
       setSelectedProduct(null);
-      await fetchProducts(); // ✅ Refresh stock
+      await fetchProducts();
       toast.success('✅ Purchase updated');
     } catch (error) {
       console.error('Failed to update purchase:', error.response?.data || error.message);
@@ -94,7 +99,7 @@ const Purchases = () => {
     try {
       await api.delete(`purchases/${id}/`);
       setPurchases(purchases.filter(p => p.id !== id));
-      await fetchProducts(); // ✅ Refresh stock
+      await fetchProducts();
       toast.info('🗑️ Purchase deleted and stock adjusted');
     } catch (error) {
       console.error('Failed to delete purchase:', error);
@@ -158,6 +163,11 @@ const Purchases = () => {
           {selectedProduct && (
             <div className="col-md-12">
               <p><strong>Current Buying Price:</strong> {formatTZS(selectedProduct.buying_price)}</p>
+              {selectedProduct.quantity > 1 && (
+                <div className="alert alert-warning mt-2">
+                  🚫 Cannot purchase: <strong>{selectedProduct.name}</strong> has sufficient stock ({selectedProduct.quantity})
+                </div>
+              )}
             </div>
           )}
           <div className="col-md-4">
@@ -181,7 +191,11 @@ const Purchases = () => {
             />
           </div>
           <div className="col-md-3 mt-3">
-            <button className="btn btn-success w-100" onClick={handleCreatePurchase}>
+            <button
+              className="btn btn-success w-100"
+              onClick={handleCreatePurchase}
+              disabled={selectedProduct && selectedProduct.quantity > 1}
+            >
               ➕ Add
             </button>
           </div>
@@ -230,27 +244,7 @@ const Purchases = () => {
         <div className="card p-3 mt-4">
           <h4>Edit Purchase</h4>
           <div className="row g-2">
-            <div className="col-md-4">
-              <label className="form-label">Product</label>
-              <select
-                className="form-select"
-                name="product"
-                value={editPurchase.product}
-                onChange={handleInputChange}
-              >
-                <option value="">Select Product</option>
-                {products.map(product => (<option key={product.id} value={product.id}>
-                    {product.name} ({product.quantity} in stock)
-                  </option>
-                ))}
-              </select>
-            </div>
-            {selectedProduct && (
-              <div className="col-md-12">
-                <p><strong>Current Buying Price:</strong> {formatTZS(selectedProduct.buying_price)}</p>
-              </div>
-            )}
-            <div className="col-md-4">
+                        <div className="col-md-4">
               <input
                 type="number"
                 className="form-control"

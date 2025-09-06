@@ -41,6 +41,8 @@ const Overview = () => {
     return <div className="text-white">Loading overview...</div>;
   }
 
+  const profitColor = stats.net_profit > 0 ? 'text-success' : 'text-danger';
+
   return (
     <div className={`overview-container theme-${theme}`}>
       <div className="d-flex justify-content-between align-items-center mb-4">
@@ -95,11 +97,10 @@ const Overview = () => {
           <div className="card card-profit">
             <div className="card-body">
               <h5>Net Profit</h5>
-              <p>{formatTZS(stats.net_profit)}</p>
+              <p className={profitColor}>{formatTZS(stats.net_profit)}</p>
             </div>
           </div>
         </div>
-        {/* ✅ New Card for Total Product Value */}
         <div className="col-md-4 mb-3">
           <div className="card card-inventory">
             <div className="card-body">
@@ -114,7 +115,9 @@ const Overview = () => {
       <ul className="list-group mb-4">
         {recent.length > 0 ? (
           recent.map((item, idx) => (
-            <li key={idx} className="list-group-item">{item}</li>
+            <li key={idx} className="list-group-item">
+              <span className="me-2">•</span>{item}
+            </li>
           ))
         ) : (
           <li className="list-group-item">No recent activity</li>

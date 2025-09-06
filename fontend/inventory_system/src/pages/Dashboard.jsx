@@ -1,42 +1,38 @@
-// import React from 'react';
-// import Sidebar from '../components/Sidebar';
-// import { Outlet } from 'react-router-dom';
-
-// const Dashboard = () => (
-//   <div style={{ display: 'flex' }}>
-//     <Sidebar />
-//     <div style={{ flex: 1, padding: '20px' }}>
-//       <Outlet /> {/* This will render child routes */}
-//     </div>
-//   </div>
-// );
-
-// export default Dashboard;
-
-
-import React from 'react';
+import React, { useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import TopBar from '../components/TopBar';
 import { Outlet } from 'react-router-dom';
 
 const Dashboard = () => {
-  // Hapa unaweza kuchukua user kutoka context au auth provider
+  const [collapsed, setCollapsed] = useState(false);
+
   const currentUser = {
     username: 'adminUser',
-    role: 'admin', // Badilisha kuwa 'user' ili link ya Register ifichwe
+    role: 'admin',
   };
 
   return (
-    <div style={{ display: 'flex', height: '100vh' }}>
-      <Sidebar />
+    <div style={{ display: 'flex' }}>
+      {/* Sidebar is fixed via CSS and sends collapse state */}
+      <Sidebar onCollapseChange={setCollapsed} />
 
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-        {/* TopBar ya juu */}
+      {/* Main content area scrolls independently and adjusts width */}
+      <div
+  className="main-content"
+  style={{
+    marginLeft: collapsed ? '85px' : '250px',
+    width: collapsed ? 'calc(100vw - 85px)' : 'calc(100vw - 250px)', // ✅ fix width
+    height: '100vh',
+    overflowY: 'auto',
+    display: 'flex',
+    flexDirection: 'column',
+    transition: 'margin-left 0.3s ease, width 0.3s ease',
+  }}
+>
         <TopBar currentUser={currentUser} />
 
-        {/* Sehemu ya content ya ndani */}
         <div style={{ flex: 1, padding: '20px' }}>
-          <Outlet /> {/* Hapa child routes zitarender */}
+          <Outlet />
         </div>
       </div>
     </div>
