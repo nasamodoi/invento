@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import api from '../api';
 import { toast } from 'react-toastify';
-import './Purchases.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
-const Purchases = () => {
+const Purchase = () => {
   const [purchases, setPurchases] = useState([]);
   const [products, setProducts] = useState([]);
   const [newPurchase, setNewPurchase] = useState({ product: '', quantity: '', price_per_unit: '' });
@@ -21,7 +21,7 @@ const Purchases = () => {
       const response = await api.get('purchases/');
       setPurchases(response.data);
     } catch (error) {
-      console.error('Failed to fetch purchases:', error);
+      toast.error('❌ Failed to fetch purchases');
     }
   };
 
@@ -30,7 +30,7 @@ const Purchases = () => {
       const response = await api.get('products/');
       setProducts(response.data);
     } catch (error) {
-      console.error('Failed to fetch products:', error);
+      toast.error('❌ Failed to fetch products');
     }
   };
 
@@ -66,7 +66,6 @@ const Purchases = () => {
       await fetchProducts();
       toast.success('✅ Purchase recorded');
     } catch (error) {
-      console.error('Failed to create purchase:', error.response?.data || error.message);
       toast.error('❌ Failed to record purchase');
     }
   };
@@ -91,7 +90,6 @@ const Purchases = () => {
       await fetchProducts();
       toast.success('✅ Purchase updated');
     } catch (error) {
-      console.error('Failed to update purchase:', error.response?.data || error.message);
       toast.error('❌ Failed to update purchase');
     }
   };
@@ -103,7 +101,7 @@ const Purchases = () => {
       await fetchProducts();
       toast.info('🗑️ Purchase deleted and stock adjusted');
     } catch (error) {
-      console.error('Failed to delete purchase:', error);
+      toast.error('❌ Failed to delete purchase');
     }
   };
 
@@ -233,7 +231,7 @@ const Purchases = () => {
                   <td>{new Date(purchase.purchased_at).toLocaleString()}</td>
                   <td>
                     <button className="btn btn-sm btn-warning me-2" onClick={() => handleEdit(purchase)}>Edit</button>
-                                        <button className="btn btn-sm btn-danger" onClick={() => handleDelete(purchase.id)}>Delete</button>
+                    <button className="btn btn-sm btn-danger" onClick={() => handleDelete(purchase.id)}>Delete</button>
                   </td>
                 </tr>
               ))}
@@ -243,6 +241,7 @@ const Purchases = () => {
       )}
 
       {/* Edit Purchase Form */}
+            {/* Edit Purchase Form */}
       {editPurchase && (
         <div className="card p-3 mt-4">
           <h4>Edit Purchase</h4>
@@ -284,8 +283,12 @@ const Purchases = () => {
               />
             </div>
             <div className="col-md-3 col-sm-6 mt-3 d-flex">
-              <button className="btn btn-primary w-100 me-2" onClick={handleUpdatePurchase}>💾 Save</button>
-              <button className="btn btn-secondary w-100" onClick={() => setEditPurchase(null)}>❌ Cancel</button>
+              <button className="btn btn-primary w-100 me-2" onClick={handleUpdatePurchase}>
+                💾 Save
+              </button>
+              <button className="btn btn-secondary w-100" onClick={() => setEditPurchase(null)}>
+                ❌ Cancel
+              </button>
             </div>
           </div>
         </div>
@@ -294,4 +297,4 @@ const Purchases = () => {
   );
 };
 
-export default Purchases;
+export default Purchase;

@@ -48,7 +48,7 @@
 .card-expenses    { background: linear-gradient(135deg, #ff416c, #ff4b2b); }
 .card-profit      { background: linear-gradient(135deg, #43cea2, #185a9d); }
 .card-inventory   { background: linear-gradient(135deg, #af6b1e, #18b833); }
-
+.card-warning     { background: linear-gradient(135deg, #74a3a1, #807e76); }
 /* ---------- Recent Activity ---------- */
 .list-group-item {
   background: transparent;

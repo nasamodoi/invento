@@ -44,13 +44,13 @@ class ProductSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def get_low_stock(self, obj):
-        return obj.quantity <= 5
+        return obj.is_low_stock  # ✅ uses model property
 
     def get_total_value(self, obj):
-        return obj.buying_price * obj.quantity
+        return obj.total_value  # ✅ uses model property
 
 # ---------------------
-# Purchase Serializer (block if stock is sufficient)
+# Purchase Serializer
 # ---------------------
 class PurchaseSerializer(serializers.ModelSerializer):
     product_name = serializers.CharField(source='product.name', read_only=True)
@@ -73,18 +73,8 @@ class PurchaseSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Quantity must be greater than zero.")
         return value
 
-    def create(self, validated_data):
-        product = validated_data['product']
-        quantity = validated_data['quantity']
-
-        product.quantity += quantity
-        product.buying_price = validated_data['price_per_unit']
-        product.save()
-
-        return super().create(validated_data)
-
 # ---------------------
-# Sale Serializer (with selling price reference)
+# Sale Serializer
 # ---------------------
 class SaleSerializer(serializers.ModelSerializer):
     product_name = serializers.CharField(source='product.name', read_only=True)
@@ -106,7 +96,7 @@ class SaleSerializer(serializers.ModelSerializer):
         ]
 
     def get_amount(self, obj):
-        return obj.price_per_unit * obj.quantity
+        return obj.amount  # ✅ already calculated in model
 
     def validate(self, data):
         product = data['product']
@@ -119,15 +109,6 @@ class SaleSerializer(serializers.ModelSerializer):
 
         return data
 
-    def create(self, validated_data):
-        product = validated_data['product']
-        quantity = validated_data['quantity']
-
-        product.quantity -= quantity
-        product.save()
-
-        return super().create(validated_data)
-
 # ---------------------
 # Expense Serializer
 # ---------------------
@@ -139,7 +120,7 @@ class ExpenseSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 # ---------------------
-# Report Serializer (overview-ready)
+# Report Serializer
 # ---------------------
 class ReportSerializer(serializers.ModelSerializer):
     generated_by_username = serializers.CharField(source='generated_by.username', read_only=True)

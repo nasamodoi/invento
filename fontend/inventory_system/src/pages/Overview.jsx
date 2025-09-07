@@ -45,6 +45,7 @@ const Overview = () => {
     'Total Expenses': 'card-expenses',
     'Net Profit': 'card-profit',
     'Total Product Value': 'card-inventory',
+    'Low Stock Products': 'card-warning'
   };
 
   if (loading || !stats) {
@@ -52,6 +53,7 @@ const Overview = () => {
   }
 
   const profitColor = stats.net_profit > 0 ? 'text-success' : 'text-danger';
+  const lowStockColor = stats.low_stock_products > 0 ? 'text-warning fw-bold' : 'text-muted';
 
   return (
     <div className={`overview-container theme-${theme}`}>
@@ -73,6 +75,7 @@ const Overview = () => {
           { label: 'Total Expenses', value: formatTZS(stats.total_expenses) },
           { label: 'Net Profit', value: formatTZS(stats.net_profit), className: profitColor },
           { label: 'Total Product Value', value: formatTZS(stats.total_product_price) },
+          { label: 'Low Stock Products', value: stats.low_stock_products, className: lowStockColor }
         ].map((item, idx) => (
           <div key={idx} className="col-md-4 mb-3">
             <div className={`card ${cardClasses[item.label] || ''}`}>
@@ -106,6 +109,7 @@ const Overview = () => {
         <NavLink to="/sales" className="btn btn-outline-light">View Sales</NavLink>
         <NavLink to="/purchases" className="btn btn-outline-light">View Purchases</NavLink>
         <NavLink to="/expenses" className="btn btn-outline-light">View Expenses</NavLink>
+        <NavLink to="/products?filter=low-stock" className="btn btn-outline-warning">🔍 Review Low Stock</NavLink>
       </div>
     </div>
   );

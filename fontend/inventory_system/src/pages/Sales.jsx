@@ -24,7 +24,7 @@ const Sales = () => {
       setSales(response.data);
       setFilteredSales(response.data);
     } catch (error) {
-      console.error('Failed to fetch sales:', error);
+      toast.error('❌ Failed to fetch sales');
     }
   };
 
@@ -33,7 +33,7 @@ const Sales = () => {
       const response = await api.get('products/');
       setProducts(response.data);
     } catch (error) {
-      console.error('Failed to fetch products:', error);
+      toast.error('❌ Failed to fetch products');
     }
   };
 
@@ -58,6 +58,16 @@ const Sales = () => {
   const handleCreateSale = async () => {
     try {
       const { product, quantity, price_per_unit } = newSale;
+      if (parseInt(quantity) <= 0 || parseFloat(price_per_unit) <= 0) {
+        toast.error("❌ Quantity and price must be greater than zero");
+        return;
+      }
+
+      if (selectedProduct && selectedProduct.quantity < parseInt(quantity)) {
+        toast.warning(`🚫 Not enough stock for '${selectedProduct.name}' (${selectedProduct.quantity} available)`);
+        return;
+      }
+
       const payload = { product, quantity, price_per_unit };
       const response = await api.post('sales/', payload);
       const updated = [...sales, response.data];
@@ -109,7 +119,7 @@ const Sales = () => {
       await fetchProducts();
       toast.info('🗑️ Sale deleted and stock restored');
     } catch (error) {
-      console.error('Failed to delete sale:', error);
+      toast.error('❌ Failed to delete sale');
     }
   };
 
@@ -195,6 +205,7 @@ const Sales = () => {
           {selectedProduct && (
             <div className="col-12">
               <p><strong>Selling Price:</strong> {formatTZS(selectedProduct.selling_price)}</p>
+              <small className="text-muted">Available stock: {selectedProduct.quantity}</small>
             </div>
           )}
           <div className="col-md-4 col-sm-6">
@@ -218,7 +229,11 @@ const Sales = () => {
             />
           </div>
           <div className="col-md-3 col-sm-6 mt-3">
-            <button className="btn btn-success w-100" onClick={handleCreateSale}>
+            <button
+              className="btn btn-success w-100"
+              onClick={handleCreateSale}
+              disabled={selectedProduct && selectedProduct.quantity < parseInt(newSale.quantity)}
+            >
               ➕ Add Sale
             </button>
           </div>
@@ -255,7 +270,7 @@ const Sales = () => {
                   <td>{new Date(sale.sold_at).toLocaleString()}</td>
                   <td>
                     <button className="btn btn-sm btn-warning me-2" onClick={() => handleEdit(sale)}>Edit</button>
-                                        <button className="btn btn-sm btn-danger" onClick={() => handleDelete(sale.id)}>Delete</button>
+                    <button className="btn btn-sm btn-danger" onClick={() => handleDelete(sale.id)}>Delete</button>
                   </td>
                 </tr>
               ))}
@@ -284,6 +299,7 @@ const Sales = () => {
             {selectedProduct && (
               <div className="col-12">
                 <p><strong>Selling Price:</strong> {formatTZS(selectedProduct.selling_price)}</p>
+                <small className="text-muted">Available stock: {selectedProduct.quantity}</small>
               </div>
             )}
             <div className="col-md-4 col-sm-6">

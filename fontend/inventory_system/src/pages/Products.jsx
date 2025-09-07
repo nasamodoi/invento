@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import api from '../api';
+import { toast } from 'react-toastify';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import './Product.css'; // optional for custom styles
+import './Product.css';
 
 const Products = () => {
   const [products, setProducts] = useState([]);
@@ -20,7 +21,7 @@ const Products = () => {
       const response = await api.get('products/');
       setProducts(response.data);
     } catch (error) {
-      console.error('Failed to fetch products:', error);
+      toast.error('❌ Failed to fetch products');
     }
   };
 
@@ -37,8 +38,9 @@ const Products = () => {
       setNewProduct({
         name: '', description: '', category: '', quantity: 0, buying_price: '', selling_price: ''
       });
+      toast.success('✅ Product added');
     } catch (error) {
-      console.error('Failed to create product:', error);
+      toast.error('❌ Failed to create product');
     }
   };
 
@@ -51,8 +53,9 @@ const Products = () => {
       const response = await api.put(`products/${editProduct.id}/`, editProduct);
       setProducts(products.map(p => (p.id === editProduct.id ? response.data : p)));
       setEditProduct(null);
+      toast.success('✅ Product updated');
     } catch (error) {
-      console.error('Failed to update product:', error);
+      toast.error('❌ Failed to update product');
     }
   };
 
@@ -60,8 +63,9 @@ const Products = () => {
     try {
       await api.delete(`products/${id}/`);
       setProducts(products.filter(p => p.id !== id));
+      toast.info('🗑️ Product deleted');
     } catch (error) {
-      console.error('Failed to delete product:', error);
+      toast.error('❌ Failed to delete product');
     }
   };
 

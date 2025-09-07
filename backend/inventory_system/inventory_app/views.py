@@ -1,4 +1,4 @@
-from django.db.models import Sum, Avg, Max, F
+from django.db.models import Sum, F
 from django.shortcuts import render
 from rest_framework import viewsets, permissions
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
@@ -176,6 +176,7 @@ def overview(request):
     total_product_price = Product.objects.aggregate(
         total=Sum(F('buying_price') * F('quantity'))
     )['total'] or 0
+    low_stock_count = Product.objects.filter(quantity__lte=2).count()  # ✅ added
 
     stats = {
         'total_products': Product.objects.count(),
@@ -184,7 +185,8 @@ def overview(request):
         'total_purchases': total_purchases,
         'total_expenses': total_expenses,
         'net_profit': net_profit,
-        'total_product_price': total_product_price
+        'total_product_price': total_product_price,
+        'low_stock_products': low_stock_count  # ✅ added
     }
 
     recent_sales = Sale.objects.order_by('-sold_at')[:2]
@@ -208,7 +210,7 @@ def overview(request):
     })
 
 # ---------------------
-# Report Dates Endpoint (for calendar heatmap)
+# Report Dates Endpoint
 # ---------------------
 @api_view(['GET'])
 @permission_classes([IsAdminUser])
@@ -217,5 +219,8 @@ def report_dates(request):
     unique_dates = sorted(set(dt.date() for dt in dates))
     return Response({'dates': [d.isoformat() for d in unique_dates]})
 
+# ---------------------
+# Frontend Entry Point
+# ---------------------
 def frontend(request):
     return render(request, 'index.html')
