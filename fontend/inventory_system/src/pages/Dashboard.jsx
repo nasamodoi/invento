@@ -14,16 +14,20 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="dashboard-wrapper">
+    <div className={`dashboard-wrapper ${mobileSidebarOpen ? 'sidebar-open' : ''}`}>
       {/* Sidebar */}
-      <Sidebar
-        onCollapseChange={setCollapsed}
-        mobileOpen={mobileSidebarOpen}
-        onMobileClose={() => setMobileSidebarOpen(false)}
-      />
+      <div className={`sidebar-container ${collapsed ? 'collapsed' : ''}`}>
+        <Sidebar
+          onCollapseChange={setCollapsed}
+          mobileOpen={mobileSidebarOpen}
+          onMobileClose={() => setMobileSidebarOpen(false)}
+        />
+      </div>
 
       {/* Overlay for mobile sidebar */}
-      {mobileSidebarOpen && <div className="overlay" onClick={() => setMobileSidebarOpen(false)} />}
+      {mobileSidebarOpen && (
+        <div className="overlay" onClick={() => setMobileSidebarOpen(false)} />
+      )}
 
       {/* Main Content */}
       <div className={`main-content ${collapsed ? 'collapsed' : 'expanded'}`}>

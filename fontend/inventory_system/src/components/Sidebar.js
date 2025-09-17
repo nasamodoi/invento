@@ -1,12 +1,10 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useUser } from '../utils/token';
-import '../api';
 import './Sidebar.css';
 
-/* ---------- Hook for media queries ---------- */
 function useMediaQuery(query) {
-  const get = () => (typeof window !== 'undefined') && window.matchMedia(query).matches;
+  const get = () => typeof window !== 'undefined' && window.matchMedia(query).matches;
   const [matches, setMatches] = useState(get);
 
   useEffect(() => {
@@ -19,7 +17,7 @@ function useMediaQuery(query) {
   return matches;
 }
 
-const Sidebar = ({ onCollapseChange }) => {
+const Sidebar = ({ onCollapseChange, mobileOpen, onMobileClose }) => {
   const user = useUser();
   const location = useLocation();
 
@@ -54,17 +52,16 @@ const Sidebar = ({ onCollapseChange }) => {
     setCollapsed(v => !v);
   };
 
-  const drawerOpen = isTiny && !collapsed;
   const drawerRef = useRef(null);
   const firstLinkRef = useRef(null);
 
   useEffect(() => {
-    if (!drawerOpen) return;
-    const el = firstLinkRef.current || drawerRef.current?.querySelector('a, button, [tabindex]:not([tabindex="-1"])');
+    if (!mobileOpen) return;
+    const el = firstLinkRef.current || drawerRef.current?.querySelector('a, button');
     el?.focus?.();
 
     const onKeyDown = (e) => {
-      if (e.key === 'Escape') setCollapsed(true);
+      if (e.key === 'Escape') onMobileClose?.();
     };
     document.addEventListener('keydown', onKeyDown);
 
@@ -75,7 +72,7 @@ const Sidebar = ({ onCollapseChange }) => {
       document.removeEventListener('keydown', onKeyDown);
       document.body.style.overflow = prev;
     };
-  }, [drawerOpen]);
+  }, [mobileOpen, onMobileClose]);
 
   const Nav = useMemo(() => (
     <nav className="nav flex-column" aria-label="Primary">
@@ -89,33 +86,16 @@ const Sidebar = ({ onCollapseChange }) => {
       >
         🏠 {!collapsed && 'Overview'}
       </NavLink>
-
-      <NavLink to="/products" className="nav-link">
-        📦 {!collapsed && 'Products'}
-      </NavLink>
-      <NavLink to="/purchases" className="nav-link">
-        📥 {!collapsed && 'Purchases'}
-      </NavLink>
-      <NavLink to="/sales" className="nav-link">
-        💸 {!collapsed && 'Sales'}
-      </NavLink>
-      <NavLink to="/expenses" className="nav-link">
-        🧾 {!collapsed && 'Expenses'}
-      </NavLink>
-      <NavLink to="/reports" className="nav-link">
-        📊 {!collapsed && 'Reports'}
-      </NavLink>
-      <NavLink to="/settings" className="nav-link">
-        ⚙️ {!collapsed && 'Settings'}
-      </NavLink>
+      <NavLink to="/products" className="nav-link">📦 {!collapsed && 'Products'}</NavLink>
+      <NavLink to="/purchases" className="nav-link">📥 {!collapsed && 'Purchases'}</NavLink>
+      <NavLink to="/sales" className="nav-link">💸 {!collapsed && 'Sales'}</NavLink>
+      <NavLink to="/expenses" className="nav-link">🧾 {!collapsed && 'Expenses'}</NavLink>
+      <NavLink to="/reports" className="nav-link">📊 {!collapsed && 'Reports'}</NavLink>
+      <NavLink to="/settings" className="nav-link">⚙️ {!collapsed && 'Settings'}</NavLink>
       {user?.is_admin && (
-        <NavLink to="/users" className="nav-link">
-          👥 {!collapsed && 'Users'}
-        </NavLink>
+        <NavLink to="/users" className="nav-link">👥 {!collapsed && 'Users'}</NavLink>
       )}
-      <NavLink to="/logout" className="nav-link text-danger mt-4">
-        🔓 {!collapsed && 'Logout'}
-      </NavLink>
+      <NavLink to="/logout" className="nav-link text-danger mt-4">🔓 {!collapsed && 'Logout'}</NavLink>
     </nav>
   ), [collapsed, user?.is_admin, location.pathname]);
 
@@ -131,29 +111,13 @@ const Sidebar = ({ onCollapseChange }) => {
   if (isTiny) {
     return (
       <>
-        <button
-          type="button"
-          className="btn btn-success tiny-toggle-floating"
-          aria-label={drawerOpen ? 'Close navigation' : 'Open navigation'}
-          aria-pressed={!collapsed}
-          aria-controls="sidebar-drawer"
-          onClick={toggleSidebar}
-        >
-          <ToggleIcon />
-        </button>
-
-        <div
-          className={`sidebar-backdrop ${drawerOpen ? 'open' : ''}`}
-          onClick={() => setCollapsed(true)}
-        />
-
         <aside
           id="sidebar-drawer"
           ref={drawerRef}
           role="dialog"
           aria-modal="true"
           aria-label="Navigation"
-          className={`sidebar-drawer bg-light border-end ${drawerOpen ? 'open' : ''}`}
+          className={`sidebar-drawer bg-light border-end ${mobileOpen ? 'open' : ''}`}
         >
           <div className="d-flex align-items-center justify-content-between p-3 border-bottom">
             <h5 className="m-0">🧮 Inventory</h5>
@@ -161,15 +125,12 @@ const Sidebar = ({ onCollapseChange }) => {
               type="button"
               className="btn btn-outline-secondary"
               aria-label="Close navigation"
-              aria-pressed={!collapsed}
-              onClick={toggleSidebar}
+              onClick={onMobileClose}
             >
               <ToggleIcon />
             </button>
           </div>
-          <div className="p-3">
-            {Nav}
-          </div>
+          <div className="p-3">{Nav}</div>
         </aside>
       </>
     );
@@ -178,7 +139,7 @@ const Sidebar = ({ onCollapseChange }) => {
   return (
     <div
       id="sidebar"
-      className={`d-flex flex-column ${collapsed ? 'sidebar-collapsed' : 'sidebar-expanded'} bg-light p-3 vh-110 border-end`}
+      className={`d-flex flex-column ${collapsed ? 'sidebar-collapsed' : 'sidebar-expanded'} bg-light p-3 vh-100 border-end`}
       style={{ width: collapsed ? '85px' : '250px', transition: 'width 0.4s' }}
       aria-label="Sidebar"
       aria-expanded={!collapsed}
@@ -188,14 +149,11 @@ const Sidebar = ({ onCollapseChange }) => {
         className="btn btn-outline-secondary mb-3 sidebar-toggle"
         onClick={toggleSidebar}
         aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-        aria-pressed={!collapsed}
-        aria-controls="sidebar"
       >
         <ToggleIcon />
       </button>
 
       {!collapsed && <h5 className="mb-4">🧮 Inventory Dashboard</h5>}
-
       {Nav}
     </div>
   );

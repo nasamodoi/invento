@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import api from '../api';
 import { toast } from 'react-toastify';
+import { useMediaQuery } from 'react-responsive';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Product.css';
 
@@ -11,6 +12,8 @@ const Products = () => {
   });
   const [editProduct, setEditProduct] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+
+  const isMobile = useMediaQuery({ maxWidth: 768 });
 
   useEffect(() => {
     fetchProducts();
@@ -115,31 +118,59 @@ const Products = () => {
 
       {/* Create Product Form */}
       <div className="card p-3 mb-4">
-        <h4>Add New Product</h4>
-        <div className="row g-2">
+        <h4>{editProduct ? 'Edit Product' : 'Add New Product'}</h4>
+        <div className="row g-3">
           {['name', 'description', 'category', 'buying_price', 'selling_price', 'quantity'].map((field) => (
-            <div className="col-md-4 col-sm-6" key={field}>
+            <div className="col-sm-12 col-md-6" key={field}>
               <input
                 type={['buying_price', 'selling_price', 'quantity'].includes(field) ? 'number' : 'text'}
                 className="form-control"
                 placeholder={field.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
                 name={field}
-                value={newProduct[field]}
+                value={editProduct ? editProduct[field] : newProduct[field]}
                 onChange={handleInputChange}
               />
             </div>
           ))}
-          <div className="col-md-2 col-sm-6">
-            <button className="btn btn-success w-100" onClick={handleCreateProduct}>
-              ➕ Add
-            </button>
+          <div className="col-sm-12 d-flex gap-2 mt-2">
+            {editProduct ? (
+              <>
+                <button className="btn btn-primary w-50" onClick={handleUpdateProduct}>💾 Save</button>
+                <button className="btn btn-secondary w-50" onClick={() => setEditProduct(null)}>❌ Cancel</button>
+              </>
+            ) : (
+              <button className="btn btn-success w-100" onClick={handleCreateProduct}>➕ Add</button>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Products Table */}
+      {/* Product Display */}
       {filteredProducts.length === 0 ? (
         <p>No products match your search.</p>
+      ) : isMobile ? (
+        <div className="row">
+          {filteredProducts.map((product) => (
+            <div className="col-sm-12 mb-3" key={product.id}>
+              <div className="card shadow-sm">
+                <div className="card-body">
+                  <h5 className="card-title">{product.name}</h5>
+                  <p className="card-text">{product.description}</p>
+                  <p><strong>Category:</strong> {product.category}</p>
+                  <p><strong>Buying:</strong> {formatTZS(product.buying_price)}</p>
+                  <p><strong>Selling:</strong> {formatTZS(product.selling_price)}</p>
+                  <p><strong>Quantity:</strong> {renderQuantityStatus(product)}</p>
+                  <p><strong>Total Value:</strong> {formatTZS(product.total_value)}</p>
+                  <p><strong>Created:</strong> {new Date(product.created_at).toLocaleString()}</p>
+                  <div className="d-flex gap-2 mt-2">
+                    <button className="btn btn-sm btn-warning w-50" onClick={() => handleEdit(product)}>Edit</button>
+                    <button className="btn btn-sm btn-danger w-50" onClick={() => handleDelete(product.id)}>Delete</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       ) : (
         <div className="table-responsive">
           <table className="table table-striped table-hover">
@@ -177,31 +208,6 @@ const Products = () => {
               ))}
             </tbody>
           </table>
-        </div>
-      )}
-
-      {/* Edit Product Form */}
-      {editProduct && (
-        <div className="card p-3 mt-4">
-          <h4>Edit Product</h4>
-          <div className="row g-2">
-            {['name', 'description', 'category', 'buying_price', 'selling_price', 'quantity'].map((field) => (
-              <div className="col-md-4 col-sm-6" key={field}>
-                <input
-                  type={['buying_price', 'selling_price', 'quantity'].includes(field) ? 'number' : 'text'}
-                  className="form-control"
-                  placeholder={field.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                  name={field}
-                  value={editProduct[field]}
-                  onChange={handleInputChange}
-                />
-              </div>
-            ))}
-            <div className="col-md-2 col-sm-6 d-flex">
-              <button className="btn btn-primary me-2 w-100" onClick={handleUpdateProduct}>💾 Save</button>
-              <button className="btn btn-secondary w-100" onClick={() => setEditProduct(null)}>❌ Cancel</button>
-            </div>
-          </div>
         </div>
       )}
     </div>

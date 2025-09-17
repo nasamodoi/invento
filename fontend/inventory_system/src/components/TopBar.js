@@ -8,7 +8,6 @@ const TopBar = ({ currentUser, onBurgerClick }) => {
 
   const toggleDropdown = () => setDropdownOpen(prev => !prev);
 
-  // 🔒 Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -31,7 +30,6 @@ const TopBar = ({ currentUser, onBurgerClick }) => {
           <Link to="/register" className="topbar-link">📝 Register</Link>
         )}
 
-        {/* Avatar + Dropdown */}
         <div className="user-dropdown" ref={dropdownRef}>
           <div className="avatar" onClick={toggleDropdown}>
             {currentUser.username.charAt(0).toUpperCase()}
@@ -41,7 +39,6 @@ const TopBar = ({ currentUser, onBurgerClick }) => {
               <p className="dropdown-user">👤 {currentUser.username}</p>
               <Link to="/logout" className="dropdown-link">🚪 Logout</Link>
             </div>
-            
           )}
         </div>
       </div>

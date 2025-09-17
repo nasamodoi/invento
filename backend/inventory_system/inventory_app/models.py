@@ -33,7 +33,7 @@ class Product(models.Model):
 
     @property
     def is_low_stock(self):
-        return self.quantity <= 2  # ✅ threshold logic
+        return self.quantity <= 2
 
 # ---------------------
 # Purchase
@@ -49,11 +49,9 @@ class Purchase(models.Model):
     def save(self, *args, **kwargs):
         self.amount = self.price_per_unit * self.quantity
 
-        # ✅ Update buying price if changed
         if self.product.buying_price != self.price_per_unit:
             self.product.buying_price = self.price_per_unit
 
-        # ✅ Increase product quantity
         self.product.quantity += self.quantity
         self.product.save()
 
@@ -76,7 +74,6 @@ class Sale(models.Model):
     def save(self, *args, **kwargs):
         self.amount = self.price_per_unit * self.quantity
 
-        # ✅ Reduce product quantity
         if self.product.quantity < self.quantity:
             raise ValidationError("Insufficient stock for sale.")
 
@@ -117,40 +114,38 @@ class Report(models.Model):
     def __str__(self):
         return f"Report {self.id} - {self.generated_at.strftime('%Y-%m-%d')}"
 
-    def calculate_total_sales_and_profit(self):
+    def calculate_total_sales(self):
         sales = Sale.objects.all()
-        total_sales = sum(s.amount for s in sales)
-        total_cost = sum(
-            s.quantity * s.product.buying_price
-            for s in sales
-        )
-        profit = total_sales - total_cost
-        self.total_sales = total_sales
-        self.net_profit = profit
+        self.total_sales = sum(s.amount for s in sales)
         self.save()
 
     def calculate_total_purchases(self):
         purchases = Purchase.objects.all()
-        total = sum(p.amount for p in purchases)
-        self.total_purchases = total
+        self.total_purchases = sum(p.amount for p in purchases)
         self.save()
 
     def calculate_total_expenses(self):
         expenses = Expense.objects.all()
-        total = sum(e.amount for e in expenses)
-        self.total_expenses = total
+        self.total_expenses = sum(e.amount for e in expenses)
         self.save()
 
     def calculate_total_product_price(self):
-        total = sum(p.total_value for p in Product.objects.all())
-        self.total_product_price = total
+        self.total_product_price = sum(p.total_value for p in Product.objects.all())
         self.save()
 
+    def calculate_cogs(self):
+        sales = Sale.objects.select_related('product').all()
+        return sum(s.quantity * s.product.buying_price for s in sales)
+
     def generate_all_metrics(self):
-        self.calculate_total_sales_and_profit()
+        self.calculate_total_sales()
         self.calculate_total_purchases()
         self.calculate_total_expenses()
         self.calculate_total_product_price()
+
+        cogs = self.calculate_cogs()
+        self.net_profit = self.total_sales - cogs - self.total_expenses
+        self.save()
 
 # ---------------------
 # Setting

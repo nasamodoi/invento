@@ -1,3 +1,4 @@
+/* ---------- Animated Background ---------- */
 @keyframes gradientShift {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
@@ -14,8 +15,10 @@
   justify-content: center;
   position: relative;
   overflow: hidden;
+  padding: 20px;
 }
 
+/* ---------- Floating Icon (Optional) ---------- */
 .floating-icon {
   position: absolute;
   width: 40px;
@@ -23,6 +26,70 @@
   z-index: 0;
 }
 
+/* ---------- Login Container ---------- */
+.container {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 30px 25px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(8px);
+  z-index: 1;
+  width: 100%;
+  max-width: 400px;
+}
+
+/* ---------- Form Labels ---------- */
+.form-label {
+  font-weight: 500;
+  font-size: 0.95rem;
+  color: #fff;
+}
+
+/* ---------- Inputs ---------- */
+.form-control {
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid #ccc;
+  color: white;
+  font-size: 1rem;
+  padding: 10px;
+  border-radius: 6px;
+  transition: border-color 0.2s ease;
+}
+
+.form-control:focus {
+  border-color: #2ae68e;
+  box-shadow: none;
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+/* ---------- Submit Button ---------- */
+.btn-light {
+  background-color: #2ae68e;
+  color: #fff;
+  font-weight: bold;
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-size: 1rem;
+  border: none;
+  transition: background-color 0.3s ease;
+}
+
+.btn-light:hover {
+  background-color: #27c47c;
+}
+
+/* ---------- Remember Me ---------- */
+.form-check-input {
+  background-color: #fff;
+  border: 1px solid #ccc;
+}
+
+.form-check-label {
+  font-size: 0.95rem;
+  color: #fff;
+}
+
+/* ---------- Loading Overlay ---------- */
 .loading-overlay {
   position: fixed;
   top: 0;
@@ -36,4 +103,31 @@
   justify-content: center;
   color: #fff;
   font-size: 1.5rem;
+  flex-direction: column;
+}
+
+/* ---------- Responsive Layout ---------- */
+@media (max-width: 480px) {
+  .container {
+    padding: 20px 15px;
+  }
+
+  .form-label {
+    font-size: 0.9rem;
+  }
+
+  .form-control,
+  .btn-light {
+    font-size: 0.95rem;
+    min-height: 44px;
+  }
+
+  .form-check-label {
+    font-size: 0.85rem;
+  }
+
+  h3 {
+    font-size: 1.3rem;
+    text-align: center;
+  }
 }

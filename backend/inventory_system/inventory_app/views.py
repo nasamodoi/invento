@@ -11,8 +11,8 @@ from .serializers import (
     ReportSerializer, SettingSerializer
 )
 from django.http import HttpResponse
-from reportlab.lib.pagesizes import A4 # pyright: ignore[reportMissingModuleSource]
-from reportlab.pdfgen import canvas # pyright: ignore[reportMissingModuleSource]
+from reportlab.lib.pagesizes import A4  # pyright: ignore[reportMissingModuleSource]
+from reportlab.pdfgen import canvas     # pyright: ignore[reportMissingModuleSource]
 from io import BytesIO
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
@@ -170,13 +170,20 @@ class SettingViewSet(viewsets.ModelViewSet):
 @permission_classes([IsAuthenticated])
 def overview(request):
     total_sales = Sale.objects.aggregate(total=Sum('amount'))['total'] or 0
-    total_purchases = Purchase.objects.aggregate(total=Sum('amount'))['total'] or 0
     total_expenses = Expense.objects.aggregate(total=Sum('amount'))['total'] or 0
-    net_profit = total_sales - total_purchases - total_expenses
     total_product_price = Product.objects.aggregate(
         total=Sum(F('buying_price') * F('quantity'))
     )['total'] or 0
-    low_stock_count = Product.objects.filter(quantity__lte=2).count()  # ✅ added
+    low_stock_count = Product.objects.filter(quantity__lte=2).count()
+
+    # ✅ Calculate COGS
+    sales = Sale.objects.select_related('product').all()
+    cogs = sum(s.quantity * s.product.buying_price for s in sales)
+
+    # ✅ Net Profit = Sales - COGS - Expenses
+    net_profit = total_sales - cogs - total_expenses
+
+    total_purchases = Purchase.objects.aggregate(total=Sum('amount'))['total'] or 0
 
     stats = {
         'total_products': Product.objects.count(),
@@ -186,7 +193,7 @@ def overview(request):
         'total_expenses': total_expenses,
         'net_profit': net_profit,
         'total_product_price': total_product_price,
-        'low_stock_products': low_stock_count  # ✅ added
+        'low_stock_products': low_stock_count
     }
 
     recent_sales = Sale.objects.order_by('-sold_at')[:2]

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useMediaQuery } from 'react-responsive';
 import api from '../api';
 import { toast } from 'react-toastify';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -10,6 +11,9 @@ const Purchase = () => {
   const [editPurchase, setEditPurchase] = useState(null);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+
+  // ✅ Responsive check
+  const isMobile = useMediaQuery({ maxWidth: 768 });
 
   useEffect(() => {
     fetchPurchases();
@@ -201,47 +205,75 @@ const Purchase = () => {
         </div>
       </div>
 
-      {/* Purchases Table */}
+      {/* Purchases List */}
       {filteredPurchases.length === 0 ? (
         <div className="alert alert-warning">No purchases match your search.</div>
       ) : (
-        <div className="table-responsive">
-          <table className="table table-bordered table-hover">
-            <thead className="table-dark">
-              <tr>
-                <th>#</th>
-                <th>Product</th>
-                <th>Quantity</th>
-                <th>Unit Price</th>
-                <th>Total Cost</th>
-                <th>Purchased By</th>
-                <th>Date</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
+        <>
+          {/* Table view for desktop */}
+          {!isMobile && (
+            <div className="table-responsive">
+              <table className="table table-bordered table-hover">
+                <thead className="table-dark">
+                  <tr>
+                    <th>#</th>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th>Unit Price</th>
+                    <th>Total Cost</th>
+                    <th>Purchased By</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredPurchases.map((purchase, index) => (
+                    <tr key={purchase.id}>
+                      <td>{index + 1}</td>
+                      <td>{purchase.product_name}</td>
+                      <td>{purchase.quantity}</td>
+                      <td>{formatTZS(purchase.price_per_unit)}</td>
+                      <td>{formatTZS(purchase.amount)}</td>
+                      <td>{purchase.purchased_by_username || '—'}</td>
+                      <td>{new Date(purchase.purchased_at).toLocaleString()}</td>
+                      <td>
+                        <button className="btn btn-sm btn-warning me-2" onClick={() => handleEdit(purchase)}>Edit</button>
+                        <button className="btn btn-sm btn-danger" onClick={() => handleDelete(purchase.id)}>Delete</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* Card view for mobile */}
+          {isMobile && (
+            <div className="row g-3">
               {filteredPurchases.map((purchase, index) => (
-                <tr key={purchase.id}>
-                  <td>{index + 1}</td>
-                  <td>{purchase.product_name}</td>
-                  <td>{purchase.quantity}</td>
-                  <td>{formatTZS(purchase.price_per_unit)}</td>
-                  <td>{formatTZS(purchase.amount)}</td>
-                  <td>{purchase.purchased_by_username || '—'}</td>
-                  <td>{new Date(purchase.purchased_at).toLocaleString()}</td>
-                  <td>
-                    <button className="btn btn-sm btn-warning me-2" onClick={() => handleEdit(purchase)}>Edit</button>
-                    <button className="btn btn-sm btn-danger" onClick={() => handleDelete(purchase.id)}>Delete</button>
-                  </td>
-                </tr>
+                <div className="col-12" key={purchase.id}>
+                  <div className="card shadow-sm">
+                    <div className="card-body">
+                      <h5 className="card-title">{index + 1}. {purchase.product_name}</h5>
+                      <p className="mb-1"><strong>Quantity:</strong> {purchase.quantity}</p>
+                      <p className="mb-1"><strong>Unit Price:</strong> {formatTZS(purchase.price_per_unit)}</p>
+                      <p className="mb-1"><strong>Total Cost:</strong> {formatTZS(purchase.amount)}</p>
+                      <p className="mb-1"><strong>Purchased By:</strong> {purchase.purchased_by_username || '—'}</p>
+                      <p className="mb-2"><strong>Date:</strong> {new Date(purchase.purchased_at).toLocaleString()}</p>
+                      <div>
+                        <button className="btn btn-sm btn-warning me-2" onClick={() => handleEdit(purchase)}>Edit</button>
+                        <button className="btn btn-sm btn-danger" onClick={() => handleDelete(purchase.id)}>Delete</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </div>
+          )}
+        </>
       )}
 
       {/* Edit Purchase Form */}
-            {/* Edit Purchase Form */}
       {editPurchase && (
         <div className="card p-3 mt-4">
           <h4>Edit Purchase</h4>

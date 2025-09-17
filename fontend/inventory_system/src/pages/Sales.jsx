@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import api from '../api';
 import { toast } from 'react-toastify';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { useMediaQuery } from 'react-responsive';
 import './Sales.css';
 
 const Sales = () => {
@@ -12,6 +13,7 @@ const Sales = () => {
   const [editSale, setEditSale] = useState(null);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [search, setSearch] = useState('');
+  const isMobile = useMediaQuery({ maxWidth: 768 });
 
   useEffect(() => {
     fetchSales();
@@ -186,63 +188,80 @@ const Sales = () => {
         )}
       </div>
 
-      {/* Add New Sale Form */}
-      <div className="card p-3 mb-4">
-        <h4>Add New Sale</h4>
-        <div className="row g-2">
-          <div className="col-md-4 col-sm-6">
-            <label className="form-label">Product</label>
-            <select
-              className="form-select"
-              name="product"
-              value={newSale.product}
-              onChange={handleInputChange}
-            >
-              <option value="">Select Product</option>
-              {renderProductOptions()}
-            </select>
-          </div>
-          {selectedProduct && (
-            <div className="col-12">
-              <p><strong>Selling Price:</strong> {formatTZS(selectedProduct.selling_price)}</p>
-              <small className="text-muted">Available stock: {selectedProduct.quantity}</small>
+      {/* Add New Sale Form (CARD STYLE) */}
+      {!editSale && (
+        <div className="card p-3 mb-4 shadow-sm">
+          <h4 className="mb-3">➕ Add New Sale</h4>
+          <div className="row g-3">
+            <div className="col-sm-12 col-md-6">
+              <label className="form-label">Product</label>
+              <select
+                className="form-select"
+                name="product"
+                value={newSale.product}
+                onChange={handleInputChange}
+              >
+                <option value="">Select Product</option>
+                {renderProductOptions()}
+              </select>
             </div>
-          )}
-          <div className="col-md-4 col-sm-6">
-            <input
-              type="number"
-              className="form-control"
-              name="quantity"
-              value={newSale.quantity}
-              placeholder="Quantity"
-              onChange={handleInputChange}
-            />
-          </div>
-          <div className="col-md-4 col-sm-6">
-            <input
-              type="number"
-              className="form-control"
-              name="price_per_unit"
-              value={newSale.price_per_unit}
-              placeholder="Selling Price"
-              onChange={handleInputChange}
-            />
-          </div>
-          <div className="col-md-3 col-sm-6 mt-3">
-            <button
-              className="btn btn-success w-100"
-              onClick={handleCreateSale}
-              disabled={selectedProduct && selectedProduct.quantity < parseInt(newSale.quantity)}
-            >
-              ➕ Add Sale
-            </button>
+            <div className="col-sm-12 col-md-6">
+              <input
+                type="number"
+                className="form-control"
+                name="quantity"
+                value={newSale.quantity}
+                placeholder="Quantity"
+                onChange={handleInputChange}
+              />
+            </div>
+            <div className="col-sm-12 col-md-6">
+              <input
+                type="number"
+                className="form-control"
+                name="price_per_unit"
+                value={newSale.price_per_unit}
+                placeholder="Selling Price"
+                onChange={handleInputChange}
+              />
+            </div>
+            <div className="col-sm-12 mt-2 d-flex">
+              <button
+                className="btn btn-success w-100"
+                onClick={handleCreateSale}
+                disabled={selectedProduct && selectedProduct.quantity < parseInt(newSale.quantity)}
+              >
+                ➕ Add Sale
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
-      {/* Sales Table */}
+      {/* Sales Table / Mobile Cards */}
       {filteredSales.length === 0 ? (
         <div className="alert alert-warning">No sales records available.</div>
+      ) : isMobile ? (
+        <div className="row">
+          {filteredSales.map((sale, index) => (
+            <div className="col-sm-12 mb-3" key={sale.id || index}>
+              <div className="card shadow-sm">
+                <div className="card-body">
+                  <h5 className="card-title">{sale.product_name}</h5>
+                  <p><strong>Quantity:</strong> {sale.quantity}</p>
+                  <p><strong>Price:</strong> {formatTZS(sale.price_per_unit)}</p>
+                  <p><strong>Total:</strong> {formatTZS(sale.amount)}</p>
+                  <p><strong>Sold By:</strong> {sale.sold_by_username || '—'}</p>
+                  <p><strong>Date:</strong> {new Date(sale.sold_at).toLocaleString()}</p>
+                  <div className="d-flex gap-2 mt-2">
+                    <button className="btn btn-sm btn-warning w-50" onClick={() => handleEdit(sale)}>Edit</button>
+                    <button className="btn btn-sm btn-danger w-50" onClick={() => handleDelete(sale.id)}>Delete</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       ) : (
         <div className="table-responsive">
           <table className="table table-bordered table-hover">
@@ -281,7 +300,7 @@ const Sales = () => {
 
       {/* Edit Sale Form */}
       {editSale && (
-        <div className="card p-3 mt-4">
+        <div className="card p-3 mt-4 shadow-sm">
           <h4>Edit Sale</h4>
           <div className="row g-2">
             <div className="col-md-4 col-sm-6">

@@ -44,29 +44,32 @@ const Overview = () => {
     'Total Purchases': 'card-purchases',
     'Total Expenses': 'card-expenses',
     'Net Profit': 'card-profit',
+    'Cash in Hand': 'card-cash',
     'Total Product Value': 'card-inventory',
     'Low Stock Products': 'card-warning'
   };
 
   if (loading || !stats) {
-    return <div className="text-white">Loading overview...</div>;
+    return <div className="text-white p-4">Loading overview...</div>;
   }
 
   const profitColor = stats.net_profit > 0 ? 'text-success' : 'text-danger';
+  const cashInHand = stats.total_sales - stats.total_expenses;
+  const cashColor = cashInHand > 0 ? 'text-success' : 'text-danger';
   const lowStockColor = stats.low_stock_products > 0 ? 'text-warning fw-bold' : 'text-muted';
 
   return (
     <div className={`overview-container theme-${theme}`}>
       {/* Header and Theme Toggle */}
-      <div className="d-flex justify-content-between align-items-center mb-4">
+      <div className="d-flex flex-wrap justify-content-between align-items-center mb-4">
         <h2 className={theme === 'dark' ? 'text-white' : ''}>📊 System Overview</h2>
-        <button className="btn btn-outline-light" onClick={toggleTheme}>
+        <button className="btn btn-outline-light mt-2 mt-md-0" onClick={toggleTheme}>
           Toggle to {theme === 'dark' ? 'Light' : 'Dark'} Mode
         </button>
       </div>
 
       {/* Stats Cards */}
-      <div className="row mb-4">
+      <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3 mb-4">
         {[
           { label: 'Total Products', value: stats.total_products },
           { label: 'Total Users', value: stats.total_users },
@@ -74,10 +77,11 @@ const Overview = () => {
           { label: 'Total Purchases', value: formatTZS(stats.total_purchases) },
           { label: 'Total Expenses', value: formatTZS(stats.total_expenses) },
           { label: 'Net Profit', value: formatTZS(stats.net_profit), className: profitColor },
+          { label: 'Cash in Hand', value: formatTZS(cashInHand), className: cashColor },
           { label: 'Total Product Value', value: formatTZS(stats.total_product_price) },
           { label: 'Low Stock Products', value: stats.low_stock_products, className: lowStockColor }
         ].map((item, idx) => (
-          <div key={idx} className="col-md-4 mb-3">
+          <div key={idx} className="col">
             <div className={`card ${cardClasses[item.label] || ''}`}>
               <div className="card-body">
                 <h5>{item.label}</h5>
@@ -103,13 +107,13 @@ const Overview = () => {
       </ul>
 
       {/* Navigation Buttons */}
-      <div className="btn-group">
-        <NavLink to="/products" className="btn btn-outline-light">Manage Products</NavLink>
-        <NavLink to="/users" className="btn btn-outline-light">Manage Users</NavLink>
-        <NavLink to="/sales" className="btn btn-outline-light">View Sales</NavLink>
-        <NavLink to="/purchases" className="btn btn-outline-light">View Purchases</NavLink>
-        <NavLink to="/expenses" className="btn btn-outline-light">View Expenses</NavLink>
-        <NavLink to="/products?filter=low-stock" className="btn btn-outline-warning">🔍 Review Low Stock</NavLink>
+      <div className="d-flex flex-wrap gap-2 mb-4">
+        <NavLink to="/products" className="btn btn-outline-light flex-grow-1">Manage Products</NavLink>
+        <NavLink to="/users" className="btn btn-outline-light flex-grow-1">Manage Users</NavLink>
+        <NavLink to="/sales" className="btn btn-outline-light flex-grow-1">View Sales</NavLink>
+        <NavLink to="/purchases" className="btn btn-outline-light flex-grow-1">View Purchases</NavLink>
+        <NavLink to="/expenses" className="btn btn-outline-light flex-grow-1">View Expenses</NavLink>
+        <NavLink to="/products?filter=low-stock" className="btn btn-outline-warning flex-grow-1">🔍 Review Low Stock</NavLink>
       </div>
     </div>
   );

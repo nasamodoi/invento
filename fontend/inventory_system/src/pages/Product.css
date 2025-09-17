@@ -102,3 +102,7 @@ h2, h4 {
     gap: 10px;
   }
 }
+button, input, select {
+  min-height: 44px;
+  font-size: 16px;
+}

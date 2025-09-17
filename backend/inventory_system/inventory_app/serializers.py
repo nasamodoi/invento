@@ -33,7 +33,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         return get_user_model().objects.create_user(**validated_data)
 
 # ---------------------
-# Product Serializer (with low stock warning)
+# Product Serializer
 # ---------------------
 class ProductSerializer(serializers.ModelSerializer):
     low_stock = serializers.SerializerMethodField()
@@ -44,10 +44,10 @@ class ProductSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def get_low_stock(self, obj):
-        return obj.is_low_stock  # ✅ uses model property
+        return obj.is_low_stock
 
     def get_total_value(self, obj):
-        return obj.total_value  # ✅ uses model property
+        return obj.total_value
 
 # ---------------------
 # Purchase Serializer
@@ -96,7 +96,7 @@ class SaleSerializer(serializers.ModelSerializer):
         ]
 
     def get_amount(self, obj):
-        return obj.amount  # ✅ already calculated in model
+        return obj.amount
 
     def validate(self, data):
         product = data['product']
@@ -120,7 +120,7 @@ class ExpenseSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 # ---------------------
-# Report Serializer
+# Report Serializer (Updated)
 # ---------------------
 class ReportSerializer(serializers.ModelSerializer):
     generated_by_username = serializers.CharField(source='generated_by.username', read_only=True)

@@ -9,7 +9,7 @@
   background-color: #2c3e50;
   padding: 15px 30px;
   color: white;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   border-bottom: 1px solid #1a252f;
 }
 
@@ -48,6 +48,7 @@
   display: flex;
   gap: 12px;
   align-items: center;
+  margin-left: auto;
 }
 
 /* ---------- Register Link ---------- */
@@ -60,6 +61,7 @@
   font-weight: bold;
   font-size: 1rem;
   transition: background-color 0.3s ease;
+  
 }
 
 .topbar-link:hover {
@@ -127,8 +129,13 @@
 @media (max-width: 768px) {
   .topbar {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
     padding: 20px;
+  }
+
+  .topbar-left {
+    width: 70%;
+    justify-content: space-between;
   }
 
   .topbar-title {
@@ -137,13 +144,14 @@
   }
 
   .topbar-right {
-    flex-direction: column;
-    align-items: flex-start;
     width: 100%;
+    justify-content: space-between;
+    flex-direction: row;
+    margin-left: 0;
+    margin-top: 5px;
   }
 
   .topbar-link {
-    width: 100%;
     padding: 10px;
     font-size: 1rem;
   }
