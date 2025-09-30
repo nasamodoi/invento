@@ -143,67 +143,73 @@ const Purchase = () => {
         )}
       </div>
 
-      {/* Create Purchase Form */}
-      <div className="card p-3 mb-4">
-        <h4>Add New Purchase</h4>
-        <div className="row g-2">
-          <div className="col-md-4 col-sm-6">
-            <label className="form-label">Product</label>
-            <select
-              className="form-select"
-              name="product"
-              value={newPurchase.product}
-              onChange={handleInputChange}
-            >
-              <option value="">Select Product</option>
-              {products.map(product => (
-                <option key={product.id} value={product.id}>
-                  {product.name} ({product.quantity} in stock)
-                </option>
-              ))}
-            </select>
+     {/* Create Purchase Form */}
+<div className="card p-3 mb-4">
+  <h4 className="mb-3">Add New Purchase</h4>
+  <div className="row g-3 align-items-end">
+    <div className="col-md-4 col-sm-6">
+      <label className="form-label">Product</label>
+      <select
+        className="form-select"
+        name="product"
+        value={newPurchase.product}
+        onChange={handleInputChange}
+      >
+        <option value="">Select Product</option>
+        {products.map(product => (
+          <option key={product.id} value={product.id}>
+            {product.name} ({product.quantity} in stock)
+          </option>
+        ))}
+      </select>
+    </div>
+
+    <div className="col-md-4 col-sm-6">
+      <label className="form-label">Quantity</label>
+      <input
+        type="number"
+        className="form-control"
+        name="quantity"
+        value={newPurchase.quantity}
+        placeholder="Quantity"
+        onChange={handleInputChange}
+      />
+    </div>
+
+    <div className="col-md-4 col-sm-6">
+      <label className="form-label">Price per unit</label>
+      <input
+        type="number"
+        className="form-control"
+        name="price_per_unit"
+        value={newPurchase.price_per_unit}
+        placeholder="Price per unit"
+        onChange={handleInputChange}
+      />
+    </div>
+
+    <div className="col-12 mt-3">
+      <button
+        className="btn btn-success btn-lg w-100"
+        onClick={handleCreatePurchase}
+        disabled={selectedProduct && selectedProduct.quantity > 1}
+      >
+        ➕ Add Purchase
+      </button>
+    </div>
+
+    {selectedProduct && (
+      <div className="col-12">
+        <p><strong>Current Buying Price:</strong> {formatTZS(selectedProduct.buying_price)}</p>
+        {selectedProduct.quantity > 1 && (
+          <div className="alert alert-warning mt-2">
+            🚫 Cannot purchase: <strong>{selectedProduct.name}</strong> has sufficient stock ({selectedProduct.quantity})
           </div>
-          {selectedProduct && (
-            <div className="col-12">
-              <p><strong>Current Buying Price:</strong> {formatTZS(selectedProduct.buying_price)}</p>
-              {selectedProduct.quantity > 1 && (
-                <div className="alert alert-warning mt-2">
-                  🚫 Cannot purchase: <strong>{selectedProduct.name}</strong> has sufficient stock ({selectedProduct.quantity})
-                </div>
-              )}
-            </div>
-          )}
-          <div className="col-md-4 col-sm-6">
-            <input
-              type="number"
-              className="form-control"
-              name="quantity"
-              value={newPurchase.quantity}
-              placeholder="Quantity"
-              onChange={handleInputChange}
-            />
-          </div>
-          <div className="col-md-4 col-sm-6">
-            <input
-              type="number"
-              className="form-control"
-              name="price_per_unit"
-              value={newPurchase.price_per_unit}
-              placeholder="Price per unit"
-              onChange={handleInputChange}
-            />
-          </div>
-          <div className="col-md-3 col-sm-6 mt-3">
-            <button
-              className="btn btn-success w-100"
-              onClick={handleCreatePurchase}
-              disabled={selectedProduct && selectedProduct.quantity > 1}
-            >
-              ➕ Add
-            </button>
-          </div>
-        </div>
+        )}
       </div>
+    )}
+  </div>
+</div>
 
       {/* Purchases List */}
       {filteredPurchases.length === 0 ? (

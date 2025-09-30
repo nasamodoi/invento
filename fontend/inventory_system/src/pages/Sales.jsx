@@ -173,7 +173,7 @@ const Sales = () => {
       <h2 className="mb-3">🧾 Sales</h2>
 
       {/* Search Bar */}
-      <div className="input-group mb-3">
+     <div className="mb-3 d-flex flex-wrap gap-2">
         <input
           type="text"
           className="form-control"
@@ -189,54 +189,59 @@ const Sales = () => {
       </div>
 
       {/* Add New Sale Form (CARD STYLE) */}
-      {!editSale && (
-        <div className="card p-3 mb-4 shadow-sm">
-          <h4 className="mb-3">➕ Add New Sale</h4>
-          <div className="row g-3">
-            <div className="col-sm-12 col-md-6">
-              <label className="form-label">Product</label>
-              <select
-                className="form-select"
-                name="product"
-                value={newSale.product}
-                onChange={handleInputChange}
-              >
-                <option value="">Select Product</option>
-                {renderProductOptions()}
-              </select>
-            </div>
-            <div className="col-sm-12 col-md-6">
-              <input
-                type="number"
-                className="form-control"
-                name="quantity"
-                value={newSale.quantity}
-                placeholder="Quantity"
-                onChange={handleInputChange}
-              />
-            </div>
-            <div className="col-sm-12 col-md-6">
-              <input
-                type="number"
-                className="form-control"
-                name="price_per_unit"
-                value={newSale.price_per_unit}
-                placeholder="Selling Price"
-                onChange={handleInputChange}
-              />
-            </div>
-            <div className="col-sm-12 mt-2 d-flex">
-              <button
-                className="btn btn-success w-100"
-                onClick={handleCreateSale}
-                disabled={selectedProduct && selectedProduct.quantity < parseInt(newSale.quantity)}
-              >
-                ➕ Add Sale
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+{!editSale && (
+  <div className="card p-3 mb-4 shadow-sm">
+    <h4 className="mb-3">➕ Add New Sale</h4>
+    <div className="row g-3 align-items-end">
+      <div className="col-md-4 col-sm-6">
+        <label className="form-label">Product</label>
+        <select
+          className="form-select"
+          name="product"
+          value={newSale.product}
+          onChange={handleInputChange}
+        >
+          <option value="">Select Product</option>
+          {renderProductOptions()}
+        </select>
+      </div>
+
+      <div className="col-md-4 col-sm-6">
+        <label className="form-label">Quantity</label>
+        <input
+          type="number"
+          className="form-control"
+          name="quantity"
+          value={newSale.quantity}
+          placeholder="Quantity"
+          onChange={handleInputChange}
+        />
+      </div>
+
+      <div className="col-md-4 col-sm-6">
+        <label className="form-label">Selling Price</label>
+        <input
+          type="number"
+          className="form-control"
+          name="price_per_unit"
+          value={newSale.price_per_unit}
+          placeholder="Selling Price"
+          onChange={handleInputChange}
+        />
+      </div>
+
+      <div className="col-12 mt-3">
+        <button
+          className="btn btn-success btn-lg w-100"
+          onClick={handleCreateSale}
+          disabled={selectedProduct && selectedProduct.quantity < parseInt(newSale.quantity)}
+        >
+          ➕ Add Sale
+        </button>
+      </div>
+    </div>
+  </div>
+)}
 
       {/* Sales Table / Mobile Cards */}
       {filteredSales.length === 0 ? (
